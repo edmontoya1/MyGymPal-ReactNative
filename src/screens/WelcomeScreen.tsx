@@ -1,11 +1,26 @@
 import { View, Text, SafeAreaView } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomInput from "../components/CustomInput/CustomInput";
 import tw from "../lib/tailwind";
 import CustomButton from "../components/CustomButton/CustomButton";
 import LottieView from "lottie-react-native";
+import { auth } from "../firebase/firebase";
+import { SignInScreenNavigationProp } from "../types/screens.definition";
 
-export default function SignInScreen() {
+export default function SignInScreen({
+  navigation,
+}: {
+  navigation: SignInScreenNavigationProp;
+}) {
+  useEffect(() => {
+    const unscubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        navigation.navigate("HomeScreen");
+      }
+    });
+    return unscubscribe;
+  }, []);
+
   const onSignInPressed = () => {
     console.warn("Sign In");
   };
