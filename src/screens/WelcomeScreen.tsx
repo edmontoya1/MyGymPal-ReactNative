@@ -22,11 +22,11 @@ export default function SignInScreen({
   }, []);
 
   const onSignInPressed = () => {
-    console.warn("Sign In");
+    navigation.navigate("SignInScreen");
   };
 
   const onSignUpPressed = () => {
-    console.warn("Sign Up");
+    navigation.navigate("SignUpScreen");
   };
 
   return (
