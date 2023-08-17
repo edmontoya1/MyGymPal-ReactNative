@@ -15,7 +15,7 @@ export default function SignInScreen({
   useEffect(() => {
     const unscubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate("HomeScreen");
+        navigation.replace("AppStackScreen");
       }
     });
     return unscubscribe;

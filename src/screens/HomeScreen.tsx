@@ -1,13 +1,13 @@
 import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
 import React from "react";
-import { HomeScreenNavigationProp } from "../types/screens.definition";
+import { HomeStackNavigationProp } from "../types/screens.definition";
 import { auth } from "../firebase/firebase";
 import tw from "../lib/tailwind";
 
 export default function HomeScreen({
   navigation,
 }: {
-  navigation: HomeScreenNavigationProp;
+  navigation: HomeStackNavigationProp;
 }) {
   const handleSignOut = () => {
     auth

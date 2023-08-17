@@ -3,9 +3,9 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export type RootStackParamList = {
   WelcomeScreen: undefined;
-  SignUpScreen: undefined;
   SignInScreen: undefined;
-  HomeScreen: undefined;
+  SignUpScreen: undefined;
+  AppStackScreen: undefined;
   ProfileScreen: undefined;
 };
 
@@ -33,10 +33,13 @@ export type SignInScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "SignInScreen"
 >;
-export type HomeScreenRouteProp = RouteProp<RootStackParamList, "HomeScreen">;
-export type HomeScreenNavigationProp = NativeStackNavigationProp<
+export type HomeStackRouteProp = RouteProp<
   RootStackParamList,
-  "HomeScreen"
+  "AppStackScreen"
+>;
+export type HomeStackNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AppStackScreen"
 >;
 export type ProfileScreenRouteProp = RouteProp<
   RootStackParamList,
