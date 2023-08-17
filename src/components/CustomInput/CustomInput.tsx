@@ -7,6 +7,7 @@ interface ICustomInput {
   setValue: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
   secureTextEntry: boolean;
+  field: string;
 }
 
 export default function CustomInput({
@@ -14,15 +15,19 @@ export default function CustomInput({
   setValue,
   placeholder,
   secureTextEntry,
+  field,
 }: ICustomInput) {
   return (
-    <View style={tw`w-full border-2 rounded-md h-8`}>
-      <TextInput
-        value={value}
-        onChangeText={setValue}
-        placeholder={placeholder}
-        secureTextEntry={secureTextEntry}
-      />
+    <View>
+      <Text style={tw`text-white mb-1`}>{field}</Text>
+      <View style={tw`w-65 border-2 justify-center rounded-md h-8 bg-white`}>
+        <TextInput
+          value={value}
+          onChangeText={setValue}
+          placeholder={placeholder}
+          secureTextEntry={secureTextEntry}
+        />
+      </View>
     </View>
   );
 }
