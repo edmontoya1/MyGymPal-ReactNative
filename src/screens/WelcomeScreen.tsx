@@ -12,15 +12,6 @@ export default function SignInScreen({
 }: {
   navigation: SignInScreenNavigationProp;
 }) {
-  useEffect(() => {
-    const unscubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        navigation.replace("AppStackScreen");
-      }
-    });
-    return unscubscribe;
-  }, []);
-
   const onSignInPressed = () => {
     navigation.navigate("SignInScreen");
   };

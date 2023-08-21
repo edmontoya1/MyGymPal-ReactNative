@@ -6,12 +6,16 @@ import CustomButton from "../components/CustomButton/CustomButton";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { SignInScreenNavigationProp } from "../types/screens.definition";
+import * as SecureStore from "expo-secure-store";
+import { useAppDispatch } from "../redux/hooks/hooks";
+import { setToken } from "../redux/slices/userSlice";
 
 export default function SignInScreen({
   navigation,
 }: {
   navigation: SignInScreenNavigationProp;
 }) {
+  const dispatch = useAppDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -20,19 +24,20 @@ export default function SignInScreen({
   };
 
   const onSignInPressed = () => {
-    console.warn("Sign In");
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
-        console.log(user);
-        // ...
-        console.warn("Signed In");
+        const token = await user.getIdTokenResult();
+
+        await SecureStore.setItemAsync("userToken", token.token);
+        dispatch(setToken(token.token));
       })
-      .catch((error) => {
+      .catch(async (error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        alert("Wrong Credentials");
+        await SecureStore.deleteItemAsync("userToken");
+        alert(errorCode);
       });
   };
 
