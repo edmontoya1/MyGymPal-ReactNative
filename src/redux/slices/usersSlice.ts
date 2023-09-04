@@ -3,10 +3,12 @@ import { RootState } from "../store";
 
 interface UsersState {
   loadedUsers: [];
+  currentIndex: number;
 }
 
 const initialState: UsersState = {
   loadedUsers: [],
+  currentIndex: 0,
 };
 
 export const usersSlice = createSlice({
@@ -16,10 +18,14 @@ export const usersSlice = createSlice({
     setUsers: (state, action: PayloadAction<[]>) => {
       state.loadedUsers = action.payload;
     },
+    setCurrentIndexSlice: (state, action: PayloadAction<number>) => {
+      console.log("userSlice currentIndex: " + action.payload);
+      state.currentIndex = action.payload;
+    },
   },
 });
 
-export const { setUsers } = usersSlice.actions;
+export const { setUsers, setCurrentIndexSlice } = usersSlice.actions;
 
 export const selectLoadedUsers = (state: RootState) => state.users.loadedUsers;
 
