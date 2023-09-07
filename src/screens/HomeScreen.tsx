@@ -1,43 +1,88 @@
-import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
-import React from "react";
+import {
+  View,
+  SafeAreaView,
+  FlatList,
+  Dimensions,
+  ListRenderItemInfo,
+  StyleSheet,
+} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
-import { auth } from "../firebase/firebase";
-import tw from "../lib/tailwind";
-import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { setToken } from "../redux/slices/userSlice";
+import { User, fakeItems } from "../lib/data";
+import MiniProfile from "../components/MiniProfile";
+import Post from "../components/Post";
+import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
 
 export default function HomeScreen({
   navigation,
 }: {
   navigation: HomeStackNavigationProp;
 }) {
-  const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
+  const userSlice = useAppSelector((state) => state.users);
+  const [users, setUsers] = useState<User[] | []>([]);
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
 
-  const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(async () => {
-        console.log("Sign out");
-        await SecureStore.deleteItemAsync("userToken");
-        dispatch(setToken(null));
-      })
-      .catch((error) => alert(error));
-  };
+  useEffect(() => {
+    setUsers(fakeItems);
+  }, []);
+
+  const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
+    if (viewableItems.length > 0) {
+      // Get the index of the first visible item
+      const firstVisibleIndex = viewableItems[0].index || 0;
+      setCurrentVisibleIndex(firstVisibleIndex);
+      dispatch(setCurrentIndexSlice(firstVisibleIndex));
+    }
+  }).current;
 
   return (
-    <SafeAreaView style={tw`bg-background h-full`}>
-      <View
-        style={tw`w-80 bg-primaryWhite justify-center items-center mx-auto`}
-      >
-        <TouchableOpacity
-          onPress={handleSignOut}
-          style={tw`bg-background rounded-md items-center p-3`}
-        >
-          <Text style={tw`text-white`}>Sign Out</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.miniProfile}>
+        <MiniProfile user={users[userSlice.currentIndex]} />
+      </View>
+      <View style={styles.postContainer}>
+        <FlatList
+          data={users}
+          renderItem={({ item }) => <Post users={item} />}
+          keyExtractor={(item, index) => index.toString()}
+          decelerationRate={"fast"}
+          //onEndReached={}
+          snapToInterval={Dimensions.get("window").height - 75}
+          snapToAlignment="start"
+          //onEndReached={fetchData}
+          contentContainerStyle={styles.post}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{
+            itemVisiblePercentThreshold: 1, // Adjust as needed
+          }}
+        />
       </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#212121",
+    height: Dimensions.get("window").height,
+    alignItems: "center",
+    gap: 10,
+  },
+  miniProfile: {
+    width: "80%",
+    backgroundColor: "#e2e2e2",
+    flex: 1,
+    borderRadius: 15,
+  },
+  postContainer: {
+    backgroundColor: "blue",
+    width: "80%",
+    flex: 3,
+    marginBottom: 60,
+  },
+  post: {
+    backgroundColor: "black",
+  },
+});
