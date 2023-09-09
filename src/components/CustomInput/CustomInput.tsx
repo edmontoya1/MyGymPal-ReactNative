@@ -1,6 +1,5 @@
-import { View, Text, TextInput } from "react-native";
+import { StyleSheet, View, Text, TextInput } from "react-native";
 import React from "react";
-import tw from "../../lib/tailwind";
 
 interface ICustomInput {
   value: string;
@@ -19,15 +18,34 @@ export default function CustomInput({
 }: ICustomInput) {
   return (
     <View>
-      <Text style={tw`text-white mb-1`}>{field}</Text>
-      <View style={tw`w-65 border-2 justify-center rounded-md h-8 bg-white`}>
+      <Text style={styles.container}>{field}</Text>
+      <View style={styles.inputContainer}>
         <TextInput
           value={value}
           onChangeText={setValue}
           placeholder={placeholder}
           secureTextEntry={secureTextEntry}
+          style={styles.input}
         />
       </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    color: "white",
+    marginBottom: 5,
+  },
+  inputContainer: {
+    width: 200,
+    borderWidth: 2,
+    justifyContent: "center",
+    borderRadius: 10,
+    height: 40,
+    backgroundColor: "white",
+  },
+  input: {
+    padding: 5,
+  },
+});

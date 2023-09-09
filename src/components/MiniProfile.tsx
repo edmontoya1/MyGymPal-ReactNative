@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { User } from "../lib/data";
 import React from "react";
-import tw from "../lib/tailwind";
 
 export default function MiniProfile(prop: { user: User | null }) {
   const handleAddFriend = () => {
