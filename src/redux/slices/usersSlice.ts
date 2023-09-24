@@ -20,7 +20,6 @@ export const usersSlice = createSlice({
       state.loadedUsers = action.payload;
     },
     setCurrentIndexSlice: (state, action: PayloadAction<number>) => {
-      console.log("userSlice currentIndex: " + action.payload);
       state.currentIndex = action.payload;
     },
   },
