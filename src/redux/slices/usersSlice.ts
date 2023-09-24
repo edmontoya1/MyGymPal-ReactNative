@@ -3,12 +3,12 @@ import { RootState } from "../store";
 import { User } from "../../lib/data";
 
 interface UsersState {
-  loadedUsers: User[] | null;
+  loadedUsers: User[];
   currentIndex: number;
 }
 
 const initialState: UsersState = {
-  loadedUsers: null,
+  loadedUsers: [],
   currentIndex: 0,
 };
 

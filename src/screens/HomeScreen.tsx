@@ -26,15 +26,18 @@ export default function HomeScreen({
 }) {
   const dispatch = useAppDispatch();
   const usersSlice = useAppSelector((state) => state.users);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       const querySnapshot = await getDocs(collection(db, "users"));
       const fetchedUsers = querySnapshot.docs.map((doc) => doc.data());
       dispatch(setLoadedUsers(fetchedUsers));
+      setLoading(false);
     };
     fetchUsers();
-  }, [dispatch]);
+  }, []);
 
   const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
     if (viewableItems.length > 0) {
@@ -47,7 +50,7 @@ export default function HomeScreen({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.miniProfile}>
-        {usersSlice.loadedUsers ? (
+        {!loading ? (
           <MiniProfile user={usersSlice.loadedUsers[usersSlice.currentIndex]} />
         ) : (
           <View style={styles.loading}>
@@ -56,7 +59,7 @@ export default function HomeScreen({
         )}
       </View>
       <View style={styles.postContainer}>
-        {usersSlice.loadedUsers ? (
+        {!loading ? (
           <FlatList
             data={usersSlice.loadedUsers}
             renderItem={({ item }) => <Post users={item} />}
