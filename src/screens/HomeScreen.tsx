@@ -5,14 +5,19 @@ import {
   Dimensions,
   ListRenderItemInfo,
   StyleSheet,
+  Text,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useRef, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { User, fakeItems } from "../lib/data";
 import MiniProfile from "../components/MiniProfile";
 import Post from "../components/Post";
 import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
+import { DocumentData, addDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+import { setLoadedUsers } from "../redux/slices/usersSlice";
+import { faker } from "@faker-js/faker";
 
 export default function HomeScreen({
   navigation,
@@ -20,19 +25,21 @@ export default function HomeScreen({
   navigation: HomeStackNavigationProp;
 }) {
   const dispatch = useAppDispatch();
-  const userSlice = useAppSelector((state) => state.users);
-  const [users, setUsers] = useState<User[] | []>([]);
-  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
+  const usersSlice = useAppSelector((state) => state.users);
 
   useEffect(() => {
-    setUsers(fakeItems);
-  }, []);
+    const fetchUsers = async () => {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const fetchedUsers = querySnapshot.docs.map((doc) => doc.data());
+      dispatch(setLoadedUsers(fetchedUsers));
+    };
+    fetchUsers();
+  }, [dispatch]);
 
   const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
     if (viewableItems.length > 0) {
       // Get the index of the first visible item
       const firstVisibleIndex = viewableItems[0].index || 0;
-      setCurrentVisibleIndex(firstVisibleIndex);
       dispatch(setCurrentIndexSlice(firstVisibleIndex));
     }
   }).current;
@@ -40,24 +47,35 @@ export default function HomeScreen({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.miniProfile}>
-        <MiniProfile user={users[userSlice.currentIndex]} />
+        {usersSlice.loadedUsers ? (
+          <MiniProfile user={usersSlice.loadedUsers[usersSlice.currentIndex]} />
+        ) : (
+          <View style={styles.loading}>
+            <ActivityIndicator size={"large"} />
+          </View>
+        )}
       </View>
       <View style={styles.postContainer}>
-        <FlatList
-          data={users}
-          renderItem={({ item }) => <Post users={item} />}
-          keyExtractor={(item, index) => index.toString()}
-          decelerationRate={"fast"}
-          //onEndReached={}
-          snapToInterval={Dimensions.get("window").height - 75}
-          snapToAlignment="start"
-          //onEndReached={fetchData}
-          contentContainerStyle={styles.post}
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={{
-            itemVisiblePercentThreshold: 1, // Adjust as needed
-          }}
-        />
+        {usersSlice.loadedUsers ? (
+          <FlatList
+            data={usersSlice.loadedUsers}
+            renderItem={({ item }) => <Post users={item} />}
+            keyExtractor={(item, index) => index.toString()}
+            decelerationRate={"fast"}
+            //onEndReached={}
+            snapToInterval={Dimensions.get("window").height - 75}
+            snapToAlignment="start"
+            //onEndReached={fetchData}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 1, // Adjust as needed
+            }}
+          />
+        ) : (
+          <View style={styles.loading}>
+            <ActivityIndicator size={"large"} />
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -71,18 +89,20 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   miniProfile: {
-    width: "80%",
+    width: "90%",
     backgroundColor: "#e2e2e2",
     flex: 1,
     borderRadius: 15,
   },
   postContainer: {
-    backgroundColor: "blue",
-    width: "80%",
+    width: "90%",
     flex: 3,
     marginBottom: 60,
+    borderRadius: 15,
   },
-  post: {
-    backgroundColor: "black",
+  loading: {
+    backgroundColor: "#e2e2e2",
+    justifyContent: "center",
+    flex: 1,
   },
 });
