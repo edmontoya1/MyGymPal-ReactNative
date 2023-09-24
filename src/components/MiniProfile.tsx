@@ -49,12 +49,12 @@ export default function MiniProfile(prop: { user: User | null }) {
 
       <View style={styles.info}>
         <View style={styles.infoStat}>
-          <Text style={styles.text}>{250}</Text>
+          <Text style={styles.text}>{prop.user?.followers_count}</Text>
           <Text>Followers</Text>
         </View>
         <View style={styles.infoStat}>
-          <Text style={styles.text}>{250}</Text>
-          <Text>Followers</Text>
+          <Text style={styles.text}>{prop.user?.following_count}</Text>
+          <Text>Following</Text>
         </View>
       </View>
     </View>
