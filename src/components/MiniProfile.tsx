@@ -37,13 +37,13 @@ export default function MiniProfile(prop: { user: User | null }) {
           <Text>PR's</Text>
         </View>
         <View style={styles.recordsInfo}>
-          <Text>S: {250}</Text>
+          <Text>S: {prop.user?.pr_squat}</Text>
         </View>
         <View style={styles.recordsInfo}>
-          <Text>B: {250}</Text>
+          <Text>B: {prop.user?.pr_bench}</Text>
         </View>
         <View style={styles.recordsInfo}>
-          <Text>D: {250}</Text>
+          <Text>D: {prop.user?.pr_deadlift}</Text>
         </View>
       </View>
 
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
     alignItems: "center",
   },
   info: {
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   },
   recordsInfo: {
     backgroundColor: "#FFFFFF",
-    padding: 5,
+    padding: 10,
     borderRadius: 15,
   },
   infoStat: {
