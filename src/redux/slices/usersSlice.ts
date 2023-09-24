@@ -1,13 +1,14 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
+import { User } from "../../lib/data";
 
 interface UsersState {
-  loadedUsers: [];
+  loadedUsers: User[] | null;
   currentIndex: number;
 }
 
 const initialState: UsersState = {
-  loadedUsers: [],
+  loadedUsers: null,
   currentIndex: 0,
 };
 
@@ -15,7 +16,7 @@ export const usersSlice = createSlice({
   name: "users",
   initialState,
   reducers: {
-    setUsers: (state, action: PayloadAction<[]>) => {
+    setLoadedUsers: (state, action: PayloadAction<any[]>) => {
       state.loadedUsers = action.payload;
     },
     setCurrentIndexSlice: (state, action: PayloadAction<number>) => {
@@ -25,7 +26,7 @@ export const usersSlice = createSlice({
   },
 });
 
-export const { setUsers, setCurrentIndexSlice } = usersSlice.actions;
+export const { setLoadedUsers, setCurrentIndexSlice } = usersSlice.actions;
 
 export const selectLoadedUsers = (state: RootState) => state.users.loadedUsers;
 
