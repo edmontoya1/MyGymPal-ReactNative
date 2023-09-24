@@ -1,7 +1,6 @@
-import { View, Text, SafeAreaView } from "react-native";
+import { StyleSheet, View, Text, SafeAreaView } from "react-native";
 import React, { useState } from "react";
 import CustomInput from "../components/CustomInput/CustomInput";
-import tw from "../lib/tailwind";
 import CustomButton from "../components/CustomButton/CustomButton";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
@@ -38,10 +37,10 @@ export default function SignUpScreen({
   };
 
   return (
-    <SafeAreaView style={tw`h-full items-center bg-background`}>
+    <SafeAreaView style={styles.container}>
       <CustomButton text="Back" onPress={onGoBackPressed} />
 
-      <View style={tw`w-80 h-full justify-center items-center gap-5`}>
+      <View style={styles.content}>
         <CustomInput
           placeholder={"Email"}
           value={email}
@@ -68,3 +67,18 @@ export default function SignUpScreen({
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    height: "100%",
+    alignItems: "center",
+    backgroundColor: "#212121",
+  },
+  content: {
+    width: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    gap: 5,
+  },
+});

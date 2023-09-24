@@ -1,43 +1,108 @@
-import { View, Text, SafeAreaView, TouchableOpacity } from "react-native";
-import React from "react";
+import {
+  View,
+  SafeAreaView,
+  FlatList,
+  Dimensions,
+  ListRenderItemInfo,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
-import { auth } from "../firebase/firebase";
-import tw from "../lib/tailwind";
-import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { setToken } from "../redux/slices/userSlice";
+import MiniProfile from "../components/MiniProfile";
+import Post from "../components/Post";
+import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
+import { DocumentData, addDoc, collection, getDocs } from "firebase/firestore";
+import { db } from "../firebase/firebase";
+import { setLoadedUsers } from "../redux/slices/usersSlice";
+import { faker } from "@faker-js/faker";
 
 export default function HomeScreen({
   navigation,
 }: {
   navigation: HomeStackNavigationProp;
 }) {
-  const user = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
+  const usersSlice = useAppSelector((state) => state.users);
 
-  const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(async () => {
-        console.log("Sign out");
-        await SecureStore.deleteItemAsync("userToken");
-        dispatch(setToken(null));
-      })
-      .catch((error) => alert(error));
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const querySnapshot = await getDocs(collection(db, "users"));
+      const fetchedUsers = querySnapshot.docs.map((doc) => doc.data());
+      dispatch(setLoadedUsers(fetchedUsers));
+    };
+    fetchUsers();
+  }, [dispatch]);
+
+  const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
+    if (viewableItems.length > 0) {
+      // Get the index of the first visible item
+      const firstVisibleIndex = viewableItems[0].index || 0;
+      dispatch(setCurrentIndexSlice(firstVisibleIndex));
+    }
+  }).current;
 
   return (
-    <SafeAreaView style={tw`bg-background h-full`}>
-      <View
-        style={tw`w-80 bg-primaryWhite justify-center items-center mx-auto`}
-      >
-        <TouchableOpacity
-          onPress={handleSignOut}
-          style={tw`bg-background rounded-md items-center p-3`}
-        >
-          <Text style={tw`text-white`}>Sign Out</Text>
-        </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.miniProfile}>
+        {usersSlice.loadedUsers ? (
+          <MiniProfile user={usersSlice.loadedUsers[usersSlice.currentIndex]} />
+        ) : (
+          <View style={styles.loading}>
+            <ActivityIndicator size={"large"} />
+          </View>
+        )}
+      </View>
+      <View style={styles.postContainer}>
+        {usersSlice.loadedUsers ? (
+          <FlatList
+            data={usersSlice.loadedUsers}
+            renderItem={({ item }) => <Post users={item} />}
+            keyExtractor={(item, index) => index.toString()}
+            decelerationRate={"fast"}
+            //onEndReached={}
+            snapToInterval={Dimensions.get("window").height - 75}
+            snapToAlignment="start"
+            //onEndReached={fetchData}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 1, // Adjust as needed
+            }}
+          />
+        ) : (
+          <View style={styles.loading}>
+            <ActivityIndicator size={"large"} />
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#212121",
+    height: Dimensions.get("window").height,
+    alignItems: "center",
+    gap: 10,
+  },
+  miniProfile: {
+    width: "90%",
+    backgroundColor: "#e2e2e2",
+    flex: 1,
+    borderRadius: 15,
+  },
+  postContainer: {
+    width: "90%",
+    flex: 3,
+    marginBottom: 60,
+    borderRadius: 15,
+  },
+  loading: {
+    backgroundColor: "#e2e2e2",
+    justifyContent: "center",
+    flex: 1,
+  },
+});

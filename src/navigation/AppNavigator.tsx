@@ -13,6 +13,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import { setToken } from "../redux/slices/userSlice";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,7 +22,23 @@ const HomeStack = createNativeStackNavigator();
 
 function AppStackScreen() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarActiveTintColor: "red",
+        tabBarInactiveTintColor: "black",
+        headerShown: false,
+        tabBarStyle: {
+          position: "absolute",
+          height: 60,
+          borderRadius: 15,
+          bottom: 25,
+          left: 25,
+          right: 25,
+          elevation: 0,
+          backgroundColor: "#D9D9D9",
+        },
+      })}
+    >
       <Tab.Screen name="HomeTab" component={HomeScreen} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
