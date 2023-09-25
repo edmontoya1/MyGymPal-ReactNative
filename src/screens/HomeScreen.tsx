@@ -14,10 +14,27 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import MiniProfile from "../components/MiniProfile";
 import Post from "../components/Post";
 import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
-import { DocumentData, addDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import {
+  DocumentData,
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { db, storage } from "../firebase/firebase";
 import { setLoadedUsers } from "../redux/slices/usersSlice";
 import { faker } from "@faker-js/faker";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadString,
+} from "firebase/storage";
 
 export default function HomeScreen({
   navigation,
@@ -25,10 +42,64 @@ export default function HomeScreen({
   navigation: HomeStackNavigationProp;
 }) {
   const dispatch = useAppDispatch();
+  const userSlice = useAppSelector((state) => state.user);
   const usersSlice = useAppSelector((state) => state.users);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const uploadPost = async () => {
+      // Create post in firebase
+      const docRef = await addDoc(collection(db, "posts"), {
+        username: userSlice.username,
+        token: userSlice.id,
+        profileImg: userSlice.photoUrl,
+        timestamp: serverTimestamp(),
+      });
+      console.log(docRef.id);
+      // upload image to firebase storage
+      const imageRef = ref(storage, `posts/${docRef.id}/image`);
+
+      const uploadImageToFirebase = async () => {
+        // Assuming the PNG file is in the 'images' folder
+        const filePath = `posts/${docRef.id}/image/favicon.png`; // Adjust the path as needed
+
+        // Create a reference to the file in Firebase Storage
+        const storageRef = ref(storage, filePath);
+
+        // Assume you have the PNG file as a Base64 string or ArrayBuffer
+        const base64Data = "BASE64_DATA_OR_ARRAYBUFFER";
+
+        // Convert the Base64 string or ArrayBuffer to a Blob
+        const blob = new Blob([base64Data], { type: "image/png" });
+
+        // Create a File object from the Blob
+        const file = new File([blob], "example.png", { type: "image/png" });
+
+        try {
+          const snapshot = await uploadBytes(storageRef, file);
+          const downloadUrl = await getDownloadURL(storageRef);
+          await updateDoc(doc(db, "posts", docRef.id), {
+            image: downloadUrl,
+          });
+          console.log("File uploaded successfully!", snapshot);
+        } catch (error) {
+          console.error("Error uploading file:", error);
+        }
+      };
+
+      uploadImageToFirebase();
+      // const storageRef = ref(storage, "");
+
+      // await uploadString(imageRef, "favicon.png", "data_url").then(
+      //   async (snapshot) => {
+      //     const downloadUrl = await getDownloadURL(imageRef);
+      //     await updateDoc(doc(db, "posts", docRef.id), {
+      //       image: downloadUrl,
+      //     });
+      //   }
+      // );
+    };
+
     const fetchUsers = async () => {
       setLoading(true);
       const querySnapshot = await getDocs(collection(db, "users"));
@@ -36,8 +107,18 @@ export default function HomeScreen({
       dispatch(setLoadedUsers(fetchedUsers));
       setLoading(false);
     };
+
+    uploadPost();
     fetchUsers();
-  }, []);
+
+    return onSnapshot(
+      query(collection(db, "posts"), orderBy("timestamp", "desc")),
+      (snapshot) => {
+        const posts = snapshot.docs;
+        console.log("posts: ", posts.length);
+      }
+    );
+  }, [db]);
 
   const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
     if (viewableItems.length > 0) {
