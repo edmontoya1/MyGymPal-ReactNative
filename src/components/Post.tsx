@@ -8,11 +8,13 @@ import {
 } from "react-native";
 import React from "react";
 import { User } from "../lib/data";
+import { IPost } from "../types/post.interface";
 
-export default function Post(prop: { users: User | null }) {
+export default function Post(prop: { post: IPost | null }) {
   return (
     <View style={styles.container}>
-      <Text>{prop.users?.first_name}</Text>
+      <Text>{prop.post?.username}</Text>
+      <Image source={{ uri: prop.post?.image }} />
       <Image source={require("../assets/icon.png")} style={styles.img} />
     </View>
   );
