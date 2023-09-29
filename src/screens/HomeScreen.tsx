@@ -35,6 +35,8 @@ import {
   uploadBytes,
   uploadString,
 } from "firebase/storage";
+import { IPost } from "../types/post.interface";
+import { setPosts } from "../redux/slices/postSlice";
 
 export default function HomeScreen({
   navigation,
@@ -44,78 +46,26 @@ export default function HomeScreen({
   const dispatch = useAppDispatch();
   const userSlice = useAppSelector((state) => state.user);
   const usersSlice = useAppSelector((state) => state.users);
+  const postSlice = useAppSelector((state) => state.post);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const uploadPost = async () => {
-      // Create post in firebase
-      const docRef = await addDoc(collection(db, "posts"), {
-        username: userSlice.username,
-        token: userSlice.id,
-        profileImg: userSlice.photoUrl,
-        timestamp: serverTimestamp(),
-      });
-      console.log(docRef.id);
-      // upload image to firebase storage
-      const imageRef = ref(storage, `posts/${docRef.id}/image`);
-
-      const uploadImageToFirebase = async () => {
-        // Assuming the PNG file is in the 'images' folder
-        const filePath = `posts/${docRef.id}/image/favicon.png`; // Adjust the path as needed
-
-        // Create a reference to the file in Firebase Storage
-        const storageRef = ref(storage, filePath);
-
-        // Assume you have the PNG file as a Base64 string or ArrayBuffer
-        const base64Data = "BASE64_DATA_OR_ARRAYBUFFER";
-
-        // Convert the Base64 string or ArrayBuffer to a Blob
-        const blob = new Blob([base64Data], { type: "image/png" });
-
-        // Create a File object from the Blob
-        const file = new File([blob], "example.png", { type: "image/png" });
-
-        try {
-          const snapshot = await uploadBytes(storageRef, file);
-          const downloadUrl = await getDownloadURL(storageRef);
-          await updateDoc(doc(db, "posts", docRef.id), {
-            image: downloadUrl,
-          });
-          console.log("File uploaded successfully!", snapshot);
-        } catch (error) {
-          console.error("Error uploading file:", error);
-        }
-      };
-
-      uploadImageToFirebase();
-      // const storageRef = ref(storage, "");
-
-      // await uploadString(imageRef, "favicon.png", "data_url").then(
-      //   async (snapshot) => {
-      //     const downloadUrl = await getDownloadURL(imageRef);
-      //     await updateDoc(doc(db, "posts", docRef.id), {
-      //       image: downloadUrl,
-      //     });
-      //   }
-      // );
-    };
-
-    const fetchUsers = async () => {
-      setLoading(true);
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const fetchedUsers = querySnapshot.docs.map((doc) => doc.data());
-      dispatch(setLoadedUsers(fetchedUsers));
-      setLoading(false);
-    };
-
-    uploadPost();
-    fetchUsers();
-
     return onSnapshot(
       query(collection(db, "posts"), orderBy("timestamp", "desc")),
       (snapshot) => {
         const posts = snapshot.docs;
-        console.log("posts: ", posts.length);
+        const formattedPosts: IPost[] = posts.map((doc) => {
+          const { token, username, profileImg, timestamp, image } = doc.data(); // Assuming data() returns the post data
+          const formattedTimeStamp = timestamp.toDate().toISOString();
+          return {
+            token,
+            username,
+            profileImg,
+            timestamp: formattedTimeStamp,
+            image,
+          };
+        });
+        dispatch(setPosts(formattedPosts));
       }
     );
   }, [db]);
@@ -142,8 +92,8 @@ export default function HomeScreen({
       <View style={styles.postContainer}>
         {!loading ? (
           <FlatList
-            data={usersSlice.loadedUsers}
-            renderItem={({ item }) => <Post users={item} />}
+            data={postSlice.posts}
+            renderItem={({ item }) => <Post post={item} />}
             keyExtractor={(item, index) => index.toString()}
             decelerationRate={"fast"}
             //onEndReached={}
