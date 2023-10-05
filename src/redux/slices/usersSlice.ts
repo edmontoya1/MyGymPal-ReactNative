@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { User } from "../../lib/data";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
+import { IUser } from "../../types/user.interface";
 
 export const fetchAllUsers = createAsyncThunk(
   "users/fetchAllUsers",
@@ -10,7 +10,7 @@ export const fetchAllUsers = createAsyncThunk(
     try {
       const usersCollection = collection(db, "users");
       const usersSnapshot = await getDocs(usersCollection);
-      return usersSnapshot.docs.map((user) => user.data() as User);
+      return usersSnapshot.docs.map((user) => user.data() as IUser);
     } catch (error) {
       console.log(error);
       return null;
@@ -18,7 +18,8 @@ export const fetchAllUsers = createAsyncThunk(
   }
 );
 interface UsersState {
-  loadedUsers: User[] | null;
+  loadedUsers: IUser[] | null;
+  usersMap: { [key: string]: IUser };
   currentIndex: number;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: null;
@@ -26,6 +27,7 @@ interface UsersState {
 
 const initialState: UsersState = {
   loadedUsers: null,
+  usersMap: {},
   currentIndex: 0,
   status: "idle",
   error: null,
@@ -37,6 +39,9 @@ export const usersSlice = createSlice({
   reducers: {
     setLoadedUsers: (state, action: PayloadAction<any[]>) => {
       state.loadedUsers = action.payload;
+    },
+    setUsersMap: (state, action: PayloadAction<{ [key: string]: IUser }>) => {
+      state.usersMap = action.payload;
     },
     setCurrentIndexSlice: (state, action: PayloadAction<number>) => {
       state.currentIndex = action.payload;
@@ -57,10 +62,12 @@ export const usersSlice = createSlice({
   },
 });
 
-export const { setLoadedUsers, setCurrentIndexSlice } = usersSlice.actions;
+export const { setLoadedUsers, setCurrentIndexSlice, setUsersMap } =
+  usersSlice.actions;
 
 export const selectLoadedUsers = (state: RootState) => state.users.loadedUsers;
 export const getLoadedUsersStatus = (state: RootState) => state.users.status;
 export const getLoadedUsersError = (state: RootState) => state.users.error;
+export const getUsersMap = (state: RootState) => state.users.usersMap;
 
 export default usersSlice.reducer;
