@@ -3,24 +3,7 @@ import { IPost } from "../../types/post.interface";
 import { RootState } from "../store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-// onSnapshot(
-//   query(collection(db, "posts"), orderBy("timestamp", "desc")),
-//   (snapshot) => {
-//     const posts = snapshot.docs;
-//     const formattedPosts: IPost[] = posts.map((doc) => {
-//       const { token, username, profileImg, timestamp, image } = doc.data(); // Assuming data() returns the post data
-//       const formattedTimeStamp = timestamp.toDate().toISOString();
-//       return {
-//         token,
-//         username,
-//         profileImg,
-//         timestamp: formattedTimeStamp,
-//         image,
-//       };
-//     });
-//     dispatch(setPosts(formattedPosts));
-//   }
-// );
+
 export const fetchAllPosts = createAsyncThunk(
   "users/fetchAllPosts",
   async () => {
@@ -49,7 +32,6 @@ export const fetchAllPosts = createAsyncThunk(
 );
 interface PostState {
   currentPost: IPost | null;
-  currentIndex: number;
   posts: IPost[] | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: null;
@@ -57,7 +39,6 @@ interface PostState {
 
 const initialState: PostState = {
   currentPost: null,
-  currentIndex: 0,
   posts: null,
   status: "idle",
   error: null,
@@ -67,7 +48,7 @@ export const postSlice = createSlice({
   name: "post",
   initialState,
   reducers: {
-    setCurrentPost: (state, action: PayloadAction<IPost>) => {
+    setCurrentPost: (state, action: PayloadAction<IPost | null>) => {
       state.currentPost = action.payload;
     },
     setPosts: (state, action: PayloadAction<IPost[]>) => {
@@ -96,6 +77,5 @@ export const getPostsStatus = (state: RootState) => state.post.status;
 export const getPostsError = (state: RootState) => state.post.error;
 
 export const selectCurrentPost = (state: RootState) => state.post.currentPost;
-export const selectCurrentIndex = (state: RootState) => state.post.currentIndex;
 
 export default postSlice.reducer;
