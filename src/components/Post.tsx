@@ -7,10 +7,13 @@ import {
   Dimensions,
 } from "react-native";
 import React from "react";
-import { User } from "../lib/data";
 import { IPost } from "../types/post.interface";
 
-export default function Post(prop: { post: IPost | null }) {
+interface PostProp {
+  post: IPost | null;
+}
+
+export default function Post(prop: PostProp) {
   return (
     <View style={styles.container}>
       <Text>{prop.post?.username}</Text>
@@ -22,9 +25,9 @@ export default function Post(prop: { post: IPost | null }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#E0E0E0",
     alignItems: "center",
-    height: Dimensions.get("window").height - 75,
+    height: 500,
     borderWidth: 2,
     borderRadius: 15,
   },
