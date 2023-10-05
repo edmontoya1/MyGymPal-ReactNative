@@ -7,16 +7,21 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-import { User } from "../lib/data";
 import React from "react";
+import { IUser } from "../types/user.interface";
 
-export default function MiniProfile(prop: { user: User | null }) {
+interface MiniProfileProps {
+  user: IUser | null;
+}
+
+export default function MiniProfile(prop: MiniProfileProps) {
   const handleAddFriend = () => {
     alert("Add Friend");
   };
 
   return (
     <View style={styles.container}>
+      {/* Top */}
       <View style={styles.header}>
         <View style={styles.header}>
           <Image source={require("../assets/icon.png")} style={styles.img} />
@@ -24,7 +29,7 @@ export default function MiniProfile(prop: { user: User | null }) {
             style={{ marginLeft: 10, fontWeight: "bold", width: 150 }}
             numberOfLines={1}
           >
-            {prop.user?.first_name} {prop.user?.last_name}
+            {prop.user?.username}
           </Text>
         </View>
         <TouchableOpacity style={styles.button} onPress={handleAddFriend}>
@@ -32,6 +37,7 @@ export default function MiniProfile(prop: { user: User | null }) {
         </TouchableOpacity>
       </View>
 
+      {/* Middle */}
       <View style={styles.records}>
         <View style={styles.recordsInfo}>
           <Text>PR's</Text>
@@ -47,6 +53,7 @@ export default function MiniProfile(prop: { user: User | null }) {
         </View>
       </View>
 
+      {/* Bottom */}
       <View style={styles.info}>
         <View style={styles.infoStat}>
           <Text style={styles.text}>{prop.user?.followers_count}</Text>
@@ -63,6 +70,7 @@ export default function MiniProfile(prop: { user: User | null }) {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#E0E0E0",
     borderRadius: 20,
     height: "100%",
     padding: 5,
