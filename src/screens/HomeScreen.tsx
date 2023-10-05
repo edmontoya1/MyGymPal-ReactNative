@@ -1,42 +1,35 @@
 import {
-  View,
   SafeAreaView,
-  FlatList,
   Dimensions,
-  ListRenderItemInfo,
   StyleSheet,
-  Text,
+  View,
+  FlatList,
   ActivityIndicator,
+  ViewToken,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
+import {
+  fetchAllUsers,
+  getLoadedUsersError,
+  getLoadedUsersStatus,
+  getUsersMap,
+  selectLoadedUsers,
+  setUsersMap,
+} from "../redux/slices/usersSlice";
 import MiniProfile from "../components/MiniProfile";
+import {
+  fetchAllPosts,
+  getPostsError,
+  getPostsStatus,
+  selectCurrentPost,
+  selectPosts,
+  setCurrentPost,
+} from "../redux/slices/postSlice";
 import Post from "../components/Post";
-import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
-import {
-  DocumentData,
-  addDoc,
-  collection,
-  doc,
-  getDocs,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-} from "firebase/firestore";
-import { db, storage } from "../firebase/firebase";
-import { setLoadedUsers } from "../redux/slices/usersSlice";
-import { faker } from "@faker-js/faker";
-import {
-  getDownloadURL,
-  ref,
-  uploadBytes,
-  uploadString,
-} from "firebase/storage";
 import { IPost } from "../types/post.interface";
-import { setPosts } from "../redux/slices/postSlice";
+import { IUser } from "../types/user.interface";
 
 export default function HomeScreen({
   navigation,
@@ -44,71 +37,83 @@ export default function HomeScreen({
   navigation: HomeStackNavigationProp;
 }) {
   const dispatch = useAppDispatch();
-  const userSlice = useAppSelector((state) => state.user);
-  const usersSlice = useAppSelector((state) => state.users);
-  const postSlice = useAppSelector((state) => state.post);
-  const [loading, setLoading] = useState(false);
+  const loadedUsers = useAppSelector(selectLoadedUsers);
+  const loadedUsersStatus = useAppSelector(getLoadedUsersStatus);
+  const loadedUsersError = useAppSelector(getLoadedUsersError);
+  const posts = useAppSelector(selectPosts);
+  const postsStatus = useAppSelector(getPostsStatus);
+  const postsError = useAppSelector(getPostsError);
+  const currentPost = useAppSelector(selectCurrentPost);
+  const usersMap = useAppSelector(getUsersMap);
 
   useEffect(() => {
-    return onSnapshot(
-      query(collection(db, "posts"), orderBy("timestamp", "desc")),
-      (snapshot) => {
-        const posts = snapshot.docs;
-        const formattedPosts: IPost[] = posts.map((doc) => {
-          const { token, username, profileImg, timestamp, image } = doc.data(); // Assuming data() returns the post data
-          const formattedTimeStamp = timestamp.toDate().toISOString();
-          return {
-            token,
-            username,
-            profileImg,
-            timestamp: formattedTimeStamp,
-            image,
-          };
-        });
-        dispatch(setPosts(formattedPosts));
-      }
-    );
-  }, [db]);
-
-  const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
-    if (viewableItems.length > 0) {
-      // Get the index of the first visible item
-      const firstVisibleIndex = viewableItems[0].index || 0;
-      dispatch(setCurrentIndexSlice(firstVisibleIndex));
+    if (loadedUsersStatus === "idle") {
+      dispatch(fetchAllUsers());
     }
-  }).current;
+
+    if (loadedUsersStatus === "succeeded" && loadedUsers) {
+      const newUserMap: { [key: string]: IUser } = {};
+      loadedUsers.forEach((user) => {
+        newUserMap[user.username] = user;
+      });
+      dispatch(setUsersMap(newUserMap));
+    }
+
+    if (postsStatus === "idle") {
+      dispatch(fetchAllPosts());
+    }
+  }, [postsStatus, loadedUsersStatus, dispatch, currentPost]);
+
+  const handleViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length > 0) {
+        const currentViewablePost: IPost = viewableItems[0].item;
+        dispatch(setCurrentPost(currentViewablePost));
+      } else {
+        dispatch(setCurrentPost(null));
+      }
+    },
+    []
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.miniProfile}>
-        {!loading ? (
-          <MiniProfile user={usersSlice.loadedUsers[usersSlice.currentIndex]} />
-        ) : (
+      <View style={styles.miniProfileContainer}>
+        {loadedUsersStatus === "loading" || currentPost == null ? (
           <View style={styles.loading}>
             <ActivityIndicator size={"large"} />
           </View>
+        ) : (
+          <MiniProfile user={usersMap[currentPost?.username]} />
         )}
       </View>
-      <View style={styles.postContainer}>
-        {!loading ? (
-          <FlatList
-            data={postSlice.posts}
-            renderItem={({ item }) => <Post post={item} />}
-            keyExtractor={(item, index) => index.toString()}
-            decelerationRate={"fast"}
-            //onEndReached={}
-            snapToInterval={Dimensions.get("window").height - 75}
-            snapToAlignment="start"
-            //onEndReached={fetchData}
-            onViewableItemsChanged={onViewableItemsChanged}
-            viewabilityConfig={{
-              itemVisiblePercentThreshold: 1, // Adjust as needed
-            }}
-          />
-        ) : (
+      <View style={styles.flatListContainer}>
+        {postsStatus === "loading" ? (
           <View style={styles.loading}>
             <ActivityIndicator size={"large"} />
           </View>
+        ) : (
+          <FlatList
+            data={posts}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View
+                style={[
+                  posts && index === posts?.length - 1 && styles.lastItem,
+                ]}
+              >
+                <Post post={item} />
+              </View>
+            )}
+            decelerationRate={"fast"}
+            snapToInterval={560}
+            snapToAlignment="start"
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 1,
+            }}
+            onViewableItemsChanged={handleViewableItemsChanged}
+          />
         )}
       </View>
     </SafeAreaView>
@@ -122,21 +127,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  miniProfile: {
-    width: "90%",
-    backgroundColor: "#e2e2e2",
+  miniProfileContainer: {
+    width: Dimensions.get("window").width * 0.9,
     flex: 1,
-    borderRadius: 15,
   },
-  postContainer: {
-    width: "90%",
+  flatListContainer: {
+    width: Dimensions.get("window").width * 0.9,
     flex: 3,
-    marginBottom: 60,
-    borderRadius: 15,
+  },
+  separator: {
+    height: 60,
+    backgroundColor: "transparent",
   },
   loading: {
     backgroundColor: "#e2e2e2",
     justifyContent: "center",
     flex: 1,
+  },
+  lastItem: {
+    marginBottom: 100, // Add extra margin for the last item
   },
 });
