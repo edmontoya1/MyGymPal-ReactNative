@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   ViewToken,
 } from "react-native";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import {
@@ -45,18 +45,23 @@ export default function HomeScreen({
   const postsError = useAppSelector(getPostsError);
   const currentPost = useAppSelector(selectCurrentPost);
   const usersMap = useAppSelector(getUsersMap);
+  const [isMapSet, setIsMapSet] = useState<Boolean>(false);
 
   useEffect(() => {
     if (loadedUsersStatus === "idle") {
       dispatch(fetchAllUsers());
     }
 
-    if (loadedUsersStatus === "succeeded" && loadedUsers) {
+    // Could be refactored
+    if (loadedUsersStatus === "succeeded" && loadedUsers && isMapSet == false) {
       const newUserMap: { [key: string]: IUser } = {};
+      console.log("mixing");
       loadedUsers.forEach((user) => {
         newUserMap[user.username] = user;
       });
+
       dispatch(setUsersMap(newUserMap));
+      setIsMapSet(true);
     }
 
     if (postsStatus === "idle") {
