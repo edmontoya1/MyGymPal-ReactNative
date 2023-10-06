@@ -5,12 +5,16 @@ import CustomButton from "../components/CustomButton/CustomButton";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/firebase";
 import { SignUpScreenNavigationProp } from "../types/screens.definition";
+import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
+import { setId, setToken } from "../redux/slices/userSlice";
 
 export default function SignUpScreen({
   navigation,
 }: {
   navigation: SignUpScreenNavigationProp;
 }) {
+  const dispatch = useAppDispatch();
+  const userSlice = useAppSelector((state) => state.user);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -22,11 +26,14 @@ export default function SignUpScreen({
   const onSignUpPressed = () => {
     console.warn("Sign In");
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         // Signed in
         const user = userCredential.user;
         // ...
-        console.warn(user);
+        const token = await user.getIdTokenResult();
+        dispatch(setToken(token.token));
+        dispatch(setId(user.uid));
+        console.log(user.uid);
       })
       .catch((error) => {
         const errorCode = error.code;

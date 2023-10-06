@@ -1,23 +1,35 @@
 import {
-  View,
   SafeAreaView,
-  FlatList,
   Dimensions,
-  ListRenderItemInfo,
   StyleSheet,
-  Text,
+  View,
+  FlatList,
   ActivityIndicator,
+  ViewToken,
 } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
+import {
+  fetchAllUsers,
+  getLoadedUsersError,
+  getLoadedUsersStatus,
+  getUsersMap,
+  selectLoadedUsers,
+  setUsersMap,
+} from "../redux/slices/usersSlice";
 import MiniProfile from "../components/MiniProfile";
+import {
+  fetchAllPosts,
+  getPostsError,
+  getPostsStatus,
+  selectCurrentPost,
+  selectPosts,
+  setCurrentPost,
+} from "../redux/slices/postSlice";
 import Post from "../components/Post";
-import { setCurrentIndexSlice } from "../redux/slices/usersSlice";
-import { DocumentData, addDoc, collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase/firebase";
-import { setLoadedUsers } from "../redux/slices/usersSlice";
-import { faker } from "@faker-js/faker";
+import { IPost } from "../types/post.interface";
+import { IUser } from "../types/user.interface";
 
 export default function HomeScreen({
   navigation,
@@ -25,56 +37,88 @@ export default function HomeScreen({
   navigation: HomeStackNavigationProp;
 }) {
   const dispatch = useAppDispatch();
-  const usersSlice = useAppSelector((state) => state.users);
+  const loadedUsers = useAppSelector(selectLoadedUsers);
+  const loadedUsersStatus = useAppSelector(getLoadedUsersStatus);
+  const loadedUsersError = useAppSelector(getLoadedUsersError);
+  const posts = useAppSelector(selectPosts);
+  const postsStatus = useAppSelector(getPostsStatus);
+  const postsError = useAppSelector(getPostsError);
+  const currentPost = useAppSelector(selectCurrentPost);
+  const usersMap = useAppSelector(getUsersMap);
+  const [isMapSet, setIsMapSet] = useState<Boolean>(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      const fetchedUsers = querySnapshot.docs.map((doc) => doc.data());
-      dispatch(setLoadedUsers(fetchedUsers));
-    };
-    fetchUsers();
-  }, [dispatch]);
-
-  const onViewableItemsChanged = useRef(({ viewableItems, changed }: any) => {
-    if (viewableItems.length > 0) {
-      // Get the index of the first visible item
-      const firstVisibleIndex = viewableItems[0].index || 0;
-      dispatch(setCurrentIndexSlice(firstVisibleIndex));
+    if (loadedUsersStatus === "idle") {
+      dispatch(fetchAllUsers());
     }
-  }).current;
+
+    // Could be refactored
+    if (loadedUsersStatus === "succeeded" && loadedUsers && isMapSet == false) {
+      const newUserMap: { [key: string]: IUser } = {};
+      console.log("mixing");
+      loadedUsers.forEach((user) => {
+        newUserMap[user.username] = user;
+      });
+
+      dispatch(setUsersMap(newUserMap));
+      setIsMapSet(true);
+    }
+
+    if (postsStatus === "idle") {
+      dispatch(fetchAllPosts());
+    }
+  }, [postsStatus, loadedUsersStatus, dispatch, currentPost]);
+
+  const handleViewableItemsChanged = useCallback(
+    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
+      if (viewableItems.length > 0) {
+        const currentViewablePost: IPost = viewableItems[0].item;
+        dispatch(setCurrentPost(currentViewablePost));
+      } else {
+        dispatch(setCurrentPost(null));
+      }
+    },
+    []
+  );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.miniProfile}>
-        {usersSlice.loadedUsers ? (
-          <MiniProfile user={usersSlice.loadedUsers[usersSlice.currentIndex]} />
-        ) : (
+      <View style={styles.miniProfileContainer}>
+        {loadedUsersStatus === "loading" || currentPost == null ? (
           <View style={styles.loading}>
             <ActivityIndicator size={"large"} />
           </View>
+        ) : (
+          <MiniProfile user={usersMap[currentPost?.username]} />
         )}
       </View>
-      <View style={styles.postContainer}>
-        {usersSlice.loadedUsers ? (
-          <FlatList
-            data={usersSlice.loadedUsers}
-            renderItem={({ item }) => <Post users={item} />}
-            keyExtractor={(item, index) => index.toString()}
-            decelerationRate={"fast"}
-            //onEndReached={}
-            snapToInterval={Dimensions.get("window").height - 75}
-            snapToAlignment="start"
-            //onEndReached={fetchData}
-            onViewableItemsChanged={onViewableItemsChanged}
-            viewabilityConfig={{
-              itemVisiblePercentThreshold: 1, // Adjust as needed
-            }}
-          />
-        ) : (
+      <View style={styles.flatListContainer}>
+        {postsStatus === "loading" ? (
           <View style={styles.loading}>
             <ActivityIndicator size={"large"} />
           </View>
+        ) : (
+          <FlatList
+            data={posts}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item, index }) => (
+              <View
+                style={[
+                  posts && index === posts?.length - 1 && styles.lastItem,
+                ]}
+              >
+                <Post post={item} />
+              </View>
+            )}
+            decelerationRate={"fast"}
+            snapToInterval={560}
+            snapToAlignment="start"
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 1,
+            }}
+            onViewableItemsChanged={handleViewableItemsChanged}
+          />
         )}
       </View>
     </SafeAreaView>
@@ -88,21 +132,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  miniProfile: {
-    width: "90%",
-    backgroundColor: "#e2e2e2",
+  miniProfileContainer: {
+    width: Dimensions.get("window").width * 0.9,
     flex: 1,
-    borderRadius: 15,
   },
-  postContainer: {
-    width: "90%",
+  flatListContainer: {
+    width: Dimensions.get("window").width * 0.9,
     flex: 3,
-    marginBottom: 60,
-    borderRadius: 15,
+  },
+  separator: {
+    height: 60,
+    backgroundColor: "transparent",
   },
   loading: {
     backgroundColor: "#e2e2e2",
     justifyContent: "center",
     flex: 1,
+  },
+  lastItem: {
+    marginBottom: 100, // Add extra margin for the last item
   },
 });

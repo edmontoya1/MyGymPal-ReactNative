@@ -7,7 +7,7 @@ import { auth } from "../firebase/firebase";
 import { SignInScreenNavigationProp } from "../types/screens.definition";
 import * as SecureStore from "expo-secure-store";
 import { useAppDispatch } from "../redux/hooks/hooks";
-import { setToken } from "../redux/slices/userSlice";
+import { setId, setToken } from "../redux/slices/userSlice";
 
 export default function SignInScreen({
   navigation,
@@ -31,6 +31,8 @@ export default function SignInScreen({
 
         await SecureStore.setItemAsync("userToken", token.token);
         dispatch(setToken(token.token));
+        dispatch(setId(user.uid));
+        // create doc for firestore
       })
       .catch(async (error) => {
         const errorCode = error.code;
