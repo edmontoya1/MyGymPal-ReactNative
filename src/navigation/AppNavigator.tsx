@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import { setToken } from "../redux/slices/userSlice";
 import { Ionicons } from "@expo/vector-icons";
+import ImagePickerScreen from "../screens/ImagePickScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -40,6 +41,11 @@ function AppStackScreen() {
       })}
     >
       <Tab.Screen name="HomeTab" component={HomeScreen} />
+      <Tab.Screen
+        name="ImagePickerTab"
+        component={ImagePickerScreen}
+        options={{ unmountOnBlur: true }}
+      />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} />
     </Tab.Navigator>
   );
