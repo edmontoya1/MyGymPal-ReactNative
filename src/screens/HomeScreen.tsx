@@ -30,6 +30,7 @@ import {
 import Post from "../components/Post";
 import { IPost } from "../types/post.interface";
 import { IUser } from "../types/user.interface";
+import MyFilesList from "../components/MyPostsList";
 
 export default function HomeScreen({
   navigation,
@@ -69,18 +70,6 @@ export default function HomeScreen({
     }
   }, [postsStatus, loadedUsersStatus, dispatch, currentPost]);
 
-  const handleViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      if (viewableItems.length > 0) {
-        const currentViewablePost: IPost = viewableItems[0].item;
-        dispatch(setCurrentPost(currentViewablePost));
-      } else {
-        dispatch(setCurrentPost(null));
-      }
-    },
-    []
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.miniProfileContainer}>
@@ -98,27 +87,7 @@ export default function HomeScreen({
             <ActivityIndicator size={"large"} />
           </View>
         ) : (
-          <FlatList
-            data={posts}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => (
-              <View
-                style={[
-                  posts && index === posts?.length - 1 && styles.lastItem,
-                ]}
-              >
-                <Post post={item} />
-              </View>
-            )}
-            decelerationRate={"fast"}
-            snapToInterval={560}
-            snapToAlignment="start"
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-            viewabilityConfig={{
-              itemVisiblePercentThreshold: 1,
-            }}
-            onViewableItemsChanged={handleViewableItemsChanged}
-          />
+          <MyFilesList posts={posts} />
         )}
       </View>
     </SafeAreaView>
@@ -140,16 +109,9 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width * 0.9,
     flex: 3,
   },
-  separator: {
-    height: 60,
-    backgroundColor: "transparent",
-  },
   loading: {
     backgroundColor: "#e2e2e2",
     justifyContent: "center",
     flex: 1,
-  },
-  lastItem: {
-    marginBottom: 100, // Add extra margin for the last item
   },
 });

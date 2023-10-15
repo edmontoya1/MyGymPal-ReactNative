@@ -15,7 +15,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { listFiles, uploadToFirebase } from "../firebase/firebase";
 import { StatusBar } from "expo-status-bar";
 import { pickImage, takePhoto } from "../utils/camera";
-import MyFilesList from "../components/MyFilesList";
+import MyFilesList from "../components/MyPostsList";
 import { useAppSelector } from "../redux/hooks/hooks";
 
 export default function ImagePickerScreen() {
