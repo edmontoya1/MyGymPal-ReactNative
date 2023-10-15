@@ -1,11 +1,11 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IPost } from "../../types/post.interface";
+import { IPost, IUploadImage } from "../../types/post.interface";
 import { RootState } from "../store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 
 export const fetchAllPosts = createAsyncThunk(
-  "users/fetchAllPosts",
+  "posts/fetchAllPosts",
   async () => {
     try {
       const postsCollection = collection(db, "posts");
