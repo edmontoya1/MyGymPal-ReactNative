@@ -48,7 +48,7 @@ const listFiles = async () => {
 const uploadToFirebase = async (
   uri: string,
   name: string | undefined,
-  onProgress: any
+  onProgress: (progress: number) => void
 ) => {
   const fetchResponse = await fetch(uri);
   const theBlob = await fetchResponse.blob();
