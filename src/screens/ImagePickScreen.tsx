@@ -16,7 +16,6 @@ import { listFiles, uploadToFirebase } from "../firebase/firebase";
 import { StatusBar } from "expo-status-bar";
 import { pickImage, takePhoto } from "../utils/camera";
 import MyFilesList from "../components/MyFilesList";
-import MyProgressBar from "../components/MyProgressBar";
 import { useAppSelector } from "../redux/hooks/hooks";
 
 export default function ImagePickerScreen() {
