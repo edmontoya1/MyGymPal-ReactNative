@@ -5,15 +5,18 @@ import { IGym } from "../../utils/gym";
 interface GymState {
   currentGymName: string | null;
   locationGymLocation: string | null;
-  homeGyms: IGym[];
+  homeGyms: { [key: string]: IGym };
 }
 
 const initialState: GymState = {
   currentGymName: null,
   locationGymLocation: null,
-  homeGyms: [
-    { name: "Gym 1", location: "123 St", label: "Gym 1", vale: "Gym 1 123 St" },
-  ],
+  homeGyms: {
+    "Gym 1": {
+      name: "Gym 1",
+      location: "Location 1",
+    },
+  },
 };
 
 export const gymSlice = createSlice({
