@@ -6,6 +6,4 @@ export type TGym = {
 export interface IGym {
   name: string;
   location: string;
-  label: string;
-  vale: any;
 }
