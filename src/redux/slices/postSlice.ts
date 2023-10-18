@@ -1,5 +1,5 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IPost, IUploadImage } from "../../types/post.interface";
+import { IPost } from "../../types/post.interface";
 import { RootState } from "../store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
@@ -33,6 +33,7 @@ export const fetchAllPosts = createAsyncThunk(
 interface PostState {
   currentPost: IPost | null;
   posts: IPost[] | null;
+  imageToUpload: string | undefined;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: null;
 }
@@ -40,6 +41,7 @@ interface PostState {
 const initialState: PostState = {
   currentPost: null,
   posts: null,
+  imageToUpload: undefined,
   status: "idle",
   error: null,
 };
@@ -53,6 +55,9 @@ export const postSlice = createSlice({
     },
     setPosts: (state, action: PayloadAction<IPost[]>) => {
       state.posts = action.payload;
+    },
+    setImageToUpload: (state, action: PayloadAction<string | undefined>) => {
+      state.imageToUpload = action.payload;
     },
   },
   extraReducers(builder) {
@@ -70,12 +75,14 @@ export const postSlice = createSlice({
   },
 });
 
-export const { setCurrentPost, setPosts } = postSlice.actions;
+export const { setCurrentPost, setPosts, setImageToUpload } = postSlice.actions;
 
 export const selectPosts = (state: RootState) => state.post.posts;
 export const getPostsStatus = (state: RootState) => state.post.status;
 export const getPostsError = (state: RootState) => state.post.error;
 
 export const selectCurrentPost = (state: RootState) => state.post.currentPost;
+export const selectImageToUpload = (state: RootState) =>
+  state.post.imageToUpload;
 
 export default postSlice.reducer;
