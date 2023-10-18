@@ -2,7 +2,7 @@ import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IPost } from "../../types/post.interface";
 import { RootState } from "../store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "../../firebase/firebase";
+import { db, listFiles, uploadToFirebase } from "../../firebase/firebase";
 
 export const fetchAllPosts = createAsyncThunk(
   "posts/fetchAllPosts",
@@ -28,6 +28,33 @@ export const fetchAllPosts = createAsyncThunk(
       console.log(error);
       return null;
     }
+  }
+);
+
+export const uploadPost = createAsyncThunk(
+  "posts/uploadPost",
+  async ({
+    userUploadImageUri,
+    comment,
+  }: {
+    userUploadImageUri: string | undefined;
+    comment: string;
+  }) => {
+    const fileName = userUploadImageUri?.split("/").pop();
+    const uploadResp = await uploadToFirebase(
+      userUploadImageUri,
+      fileName,
+      (v: any) => {
+        console.log("Uploading picked image: ", v);
+      }
+    );
+
+    return listFiles().then((listResp) => {
+      const files = listResp.map((value) => {
+        return { name: value.fullPath };
+      });
+      return files;
+    });
   }
 );
 interface PostState {
@@ -70,6 +97,16 @@ export const postSlice = createSlice({
         state.posts = action.payload;
       })
       .addCase(fetchAllPosts.rejected, (state, action) => {
+        state.status = "failed";
+      });
+    builder
+      .addCase(uploadPost.pending, (state, action) => {
+        state.status = "loading";
+      })
+      .addCase(uploadPost.fulfilled, (state, action) => {
+        state.status = "succeeded";
+      })
+      .addCase(uploadPost.rejected, (state, action) => {
         state.status = "failed";
       });
   },

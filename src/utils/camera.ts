@@ -44,17 +44,6 @@ const pickAndGetImage = async () => {
   // Currently uploads to firebase
   if (!result.canceled) {
     const { uri } = result.assets[0];
-    const fileName = uri.split("/").pop();
-    const uploadResp = await uploadToFirebase(uri, fileName, (v: any) => {
-      console.log("Uploading picked image: ", v);
-    });
-
-    // listFiles().then((listResp) => {
-    //   const files = listResp.map((value) => {
-    //     return { name: value.fullPath };
-    //   });
-    //   return files;
-    // });
     return uri;
   }
 };
