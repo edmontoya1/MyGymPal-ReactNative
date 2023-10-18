@@ -26,17 +26,29 @@ import {
 import "react-native-gesture-handler";
 import EmptyScreen from "../screens/EmptyScreen";
 import { useActionSheet } from "@expo/react-native-action-sheet";
+import { pickAndGetImage, takePhoto } from "../utils/camera";
+import {
+  selectImageToUpload,
+  setImageToUpload,
+} from "../redux/slices/postSlice";
+import { PostScreenNavigationProp } from "../types/screens.definition";
+import PostForm from "../components/PostForm";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const HomeStack = createNativeStackNavigator();
 
-function AppStackScreen() {
+function AppStackScreen({
+  navigation,
+}: {
+  navigation: PostScreenNavigationProp;
+}) {
+  const dispatch = useAppDispatch();
   const { showActionSheetWithOptions } = useActionSheet();
 
   const onPress = () => {
-    const options = ["Delete", "Save", "Cancel"];
+    const options = ["Take Photo", "Upload From Camera Roll", "Cancel"];
     const destructiveButtonIndex = 0;
     const cancelButtonIndex = 2;
     const title = "";
@@ -45,16 +57,24 @@ function AppStackScreen() {
       {
         options,
         cancelButtonIndex,
-        destructiveButtonIndex,
+        destructiveButtonIndex, // Take Photo
       },
       (i?: number) => {
         switch (i) {
           case 1:
-            // Save
+            // Upload From Camera
+            pickAndGetImage().then((imageUri) => {
+              console.log(imageUri);
+              dispatch(setImageToUpload(imageUri));
+              navigation.navigate("PostFormScreen");
+            });
             break;
-
           case destructiveButtonIndex:
             // Delete
+            // Take Picture from Camera
+            takePhoto().then((files) => {
+              console.log(files);
+            });
             break;
 
           case cancelButtonIndex:
@@ -166,7 +186,10 @@ export default function AppNavigator() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {user.token !== null && isSignedIn ? (
-          <Stack.Screen name="AppStackScreen" component={AppStackScreen} />
+          <>
+            <Stack.Screen name="AppStackScreen" component={AppStackScreen} />
+            <Stack.Screen name="PostFormScreen" component={PostForm} />
+          </>
         ) : (
           <>
             <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
