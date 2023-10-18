@@ -7,6 +7,7 @@ export type RootStackParamList = {
   SignUpScreen: undefined;
   AppStackScreen: undefined;
   ProfileScreen: undefined;
+  PostFormScreen: undefined;
 };
 
 export type WelcomeScreenRouteProp = RouteProp<
@@ -48,4 +49,8 @@ export type ProfileScreenRouteProp = RouteProp<
 export type ProfileScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   "ProfileScreen"
+>;
+export type PostScreenNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  "AppStackScreen"
 >;
