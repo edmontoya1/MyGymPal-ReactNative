@@ -4,19 +4,17 @@ import { useAppSelector } from "../redux/hooks/hooks";
 import { getHomeGyms } from "../redux/slices/gymSlice";
 import { TGym } from "../utils/gym";
 import DropdownList from "./DropdownList";
+import { selectImageToUpload } from "../redux/slices/postSlice";
 
-type Props = {
-  imageURL: string;
-};
-
-const PostForm = (props: Props) => {
+const PostForm = () => {
   const homeGymsList = useAppSelector(getHomeGyms);
+  const userUploadImage = useAppSelector(selectImageToUpload);
   const [comment, setComment] = useState<string>("");
 
   return (
     <View>
       <Image
-        source={{ uri: props.imageURL }}
+        source={{ uri: userUploadImage }}
         style={{ width: 200, height: 200 }}
       />
       <TextInput
