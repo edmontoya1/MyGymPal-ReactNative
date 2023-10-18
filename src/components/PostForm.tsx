@@ -1,11 +1,16 @@
 import { StyleSheet, Text, View, Image, TextInput, Button } from "react-native";
 import React, { useState } from "react";
+import { useAppSelector } from "../redux/hooks/hooks";
+import { getHomeGyms } from "../redux/slices/gymSlice";
+import { TGym } from "../utils/gym";
+import DropdownList from "./DropdownList";
 
 type Props = {
   imageURL: string;
 };
 
-const Form = (props: Props) => {
+const PostForm = (props: Props) => {
+  const homeGymsList = useAppSelector(getHomeGyms);
   const [comment, setComment] = useState<string>("");
 
   return (
@@ -19,11 +24,13 @@ const Form = (props: Props) => {
         value={comment}
         onChangeText={setComment}
       />
+      <DropdownList />
+      {/* <TextInput style={styles.input} value={gym} onChangeText={setGym} /> */}
     </View>
   );
 };
 
-export default Form;
+export default PostForm;
 
 const styles = StyleSheet.create({
   input: {

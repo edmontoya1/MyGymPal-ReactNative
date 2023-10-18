@@ -10,17 +10,18 @@ import {
   StyleSheet,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import Form from "../components/Form";
+import Form from "../components/PostForm";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { listFiles, uploadToFirebase } from "../firebase/firebase";
 import { StatusBar } from "expo-status-bar";
-import { pickImage, takePhoto } from "../utils/camera";
+import { pickAndGetImage, takePhoto } from "../utils/camera";
 import MyFilesList from "../components/MyPostsList";
 import { useAppSelector } from "../redux/hooks/hooks";
+import PostForm from "../components/PostForm";
 
 export default function ImagePickerScreen() {
   const [permission, requestPermission] = ImagePicker.useCameraPermissions();
-  const [image, setImage] = useState<string | null>(null);
+  const [imageUri, setImageUri] = useState<string | undefined>(undefined);
   const [files, setFiles] = useState<{ name: string }[] | undefined>([]);
 
   useEffect(() => {
@@ -31,6 +32,13 @@ export default function ImagePickerScreen() {
       setFiles(files);
     });
   }, []);
+
+  const handlePickImage = () => {
+    pickAndGetImage().then((imageUri) => {
+      console.log(`\nfetched: \t${imageUri}`);
+      setImageUri(imageUri);
+    });
+  };
 
   if (permission?.status !== ImagePicker.PermissionStatus.GRANTED) {
     return (
@@ -43,12 +51,21 @@ export default function ImagePickerScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Working with firbase and image picker</Text>
-      <Button
-        title="Take Photo"
-        onPress={() => takePhoto().then((files) => setFiles(files))}
-      />
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
+      {imageUri ? (
+        <PostForm imageURL={imageUri} />
+      ) : (
+        <View>
+          <Text>Working with firbase and image picker</Text>
+          <Button
+            title="Take Photo"
+            onPress={() => takePhoto().then((files) => setFiles(files))}
+          />
+          <Button
+            title="Pick an image from camera roll"
+            onPress={handlePickImage}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

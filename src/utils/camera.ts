@@ -33,7 +33,7 @@ const takePhoto = async () => {
 };
 
 // temporary commented out, this allows for picture picking
-const pickImage = async () => {
+const pickAndGetImage = async () => {
   // No permissions request is necessary for launching the image library
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -41,21 +41,22 @@ const pickImage = async () => {
     aspect: [10, 4],
     quality: 1,
   });
-
+  // Currently uploads to firebase
   if (!result.canceled) {
     const { uri } = result.assets[0];
     const fileName = uri.split("/").pop();
     const uploadResp = await uploadToFirebase(uri, fileName, (v: any) => {
-      console.log(v);
-      // console.log(parseFloat(v) / 0.01);
+      console.log("Uploading picked image: ", v);
     });
 
-    listFiles().then((listResp) => {
-      const files = listResp.map((value) => {
-        return { name: value.fullPath };
-      });
-    });
+    // listFiles().then((listResp) => {
+    //   const files = listResp.map((value) => {
+    //     return { name: value.fullPath };
+    //   });
+    //   return files;
+    // });
+    return uri;
   }
 };
 
-export { takePhoto, pickImage };
+export { takePhoto, pickAndGetImage };
