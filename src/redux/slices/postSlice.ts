@@ -105,6 +105,7 @@ export const postSlice = createSlice({
       })
       .addCase(uploadPost.fulfilled, (state, action) => {
         state.status = "succeeded";
+        state.imageToUpload = undefined;
       })
       .addCase(uploadPost.rejected, (state, action) => {
         state.status = "failed";
