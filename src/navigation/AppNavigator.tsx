@@ -33,6 +33,9 @@ import {
 } from "../redux/slices/postSlice";
 import { PostScreenNavigationProp } from "../types/screens.definition";
 import PostForm from "../components/PostForm";
+import SearchScreen from "../screens/SearchScreen";
+import MessagesScreen from "../screens/InboxScreen";
+import InboxScreen from "../screens/InboxScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -131,6 +134,23 @@ function AppStackScreen({
         }}
       />
       <Tab.Screen
+        name="SearchTab"
+        component={SearchScreen}
+        options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <View style={styles.icon}>
+                <FontAwesome5
+                  name="search"
+                  size={20}
+                  color={focused ? "red" : "gray"}
+                ></FontAwesome5>
+              </View>
+            );
+          },
+        }}
+      />
+      <Tab.Screen
         name="ImagePickerTab"
         component={EmptyScreen}
         options={{
@@ -144,6 +164,23 @@ function AppStackScreen({
               </View>
             </TouchableOpacity>
           ),
+        }}
+      />
+      <Tab.Screen
+        name="InboxTab"
+        component={InboxScreen}
+        options={{
+          tabBarIcon: ({ focused }) => {
+            return (
+              <View style={styles.icon}>
+                <FontAwesome5
+                  name="inbox"
+                  size={20}
+                  color={focused ? "red" : "gray"}
+                ></FontAwesome5>
+              </View>
+            );
+          },
         }}
       />
       <Tab.Screen
