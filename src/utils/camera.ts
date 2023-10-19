@@ -13,19 +13,17 @@ const takePhoto = async () => {
 
     if (!cameraResp.canceled) {
       const { uri } = cameraResp.assets[0];
-      const fileName = uri.split("/").pop();
-      const uploadResp = await uploadToFirebase(uri, fileName, (v: number) =>
-        console.log(v)
-      );
+      return uri;
+      // const formattedFiles = listFiles().then((listResp) => {
+      //   const files = listResp.map((value) => {
+      //     return { name: value.fullPath };
+      //   });
 
-      const formattedFiles = listFiles().then((listResp) => {
-        const files = listResp.map((value) => {
-          return { name: value.fullPath };
-        });
-
-        return files;
-      });
-      return formattedFiles;
+      //   return files;
+      // });
+      // return formattedFiles;
+    } else {
+      console.log("Inside cancell");
     }
   } catch (e: any) {
     Alert.alert("Error Uploading Image " + e.message);
@@ -38,7 +36,7 @@ const pickAndGetImage = async () => {
   let result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: ImagePicker.MediaTypeOptions.All,
     allowsEditing: true,
-    aspect: [10, 4],
+    aspect: [4, 5],
     quality: 1,
   });
   // Currently uploads to firebase

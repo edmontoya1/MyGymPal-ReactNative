@@ -37,7 +37,6 @@ const DropdownList = () => {
     }
   }, []);
 
-  console.log(value);
   return (
     <Dropdown
       style={styles.dropdown}
