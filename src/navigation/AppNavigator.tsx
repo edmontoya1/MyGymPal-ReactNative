@@ -64,20 +64,25 @@ function AppStackScreen({
           case 1:
             // Upload From Camera
             pickAndGetImage().then((imageUri) => {
-              console.log(imageUri);
               dispatch(setImageToUpload(imageUri));
-              navigation.navigate("PostFormScreen");
+              if (imageUri != undefined) {
+                console.log(imageUri);
+                navigation.navigate("PostFormScreen");
+              }
             });
             break;
           case destructiveButtonIndex:
-            // Delete
             // Take Picture from Camera
-            takePhoto().then((files) => {
-              console.log(files);
+            takePhoto().then((imageUri) => {
+              dispatch(setImageToUpload(imageUri));
+              if (imageUri != undefined) {
+                navigation.navigate("PostFormScreen");
+              }
             });
             break;
 
           case cancelButtonIndex:
+            console.log("Cancel button");
           // Canceled
         }
       }

@@ -16,10 +16,12 @@ import DropdownList from "./DropdownList";
 import {
   getPostsStatus,
   selectImageToUpload,
+  setImageToUpload,
   uploadPost,
 } from "../redux/slices/postSlice";
+import { PostScreenNavigationProp } from "../types/screens.definition";
 
-const PostForm = () => {
+const PostForm = ({ navigation }: { navigation: PostScreenNavigationProp }) => {
   const dispatch = useAppDispatch();
   const homeGymsList = useAppSelector(getHomeGyms);
   const userUploadImageUri = useAppSelector(selectImageToUpload);
@@ -30,14 +32,19 @@ const PostForm = () => {
     dispatch(uploadPost({ userUploadImageUri, comment }));
   };
 
+  const handleGoBack = () => {
+    dispatch(setImageToUpload(undefined));
+    navigation.navigate("AppStackScreen");
+  };
   return (
-    <SafeAreaView>
+    <SafeAreaView style={styles.container}>
       {postStatus === "loading" ? (
         <View style={styles.loading}>
           <ActivityIndicator size={"large"} />
         </View>
       ) : (
         <>
+          <Button title="<" onPress={handleGoBack} />
           <Image
             source={{ uri: userUploadImageUri }}
             style={{ width: 200, height: 200 }}
@@ -59,7 +66,7 @@ export default PostForm;
 
 const styles = StyleSheet.create({
   container: {
-    height: Dimensions.get("window").height,
+    flex: 1,
     alignItems: "center",
   },
   input: {
