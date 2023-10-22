@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { IGym } from "../../utils/gym";
+import { IGym } from "../../types/gym";
 
 interface GymState {
   currentGymName: string | null;
