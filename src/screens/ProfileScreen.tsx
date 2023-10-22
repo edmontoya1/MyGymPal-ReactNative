@@ -12,6 +12,7 @@ export default function ProfileScreen() {
     auth.signOut().then(async () => {
       dispatch(setToken(null));
       await SecureStore.deleteItemAsync("userToken");
+      await SecureStore.deleteItemAsync("userDocId");
       alert("signed out");
     });
   };
