@@ -31,6 +31,7 @@ import Post from "../components/Post";
 import { IPost } from "../types/post.interface";
 import { IUser } from "../types/user.interface";
 import MyFilesList from "../components/MyPostsList";
+import { auth } from "../firebase/firebase";
 
 export default function HomeScreen({
   navigation,
@@ -47,6 +48,7 @@ export default function HomeScreen({
   const currentPost = useAppSelector(selectCurrentPost);
   const usersMap = useAppSelector(getUsersMap);
   const [isMapSet, setIsMapSet] = useState<Boolean>(false);
+  const user = useAppSelector((state) => state.user);
 
   useEffect(() => {
     if (loadedUsersStatus === "idle") {

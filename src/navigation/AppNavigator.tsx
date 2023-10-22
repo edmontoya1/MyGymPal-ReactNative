@@ -12,7 +12,7 @@ import SignUpScreen from "../screens/SignUpScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { setToken } from "../redux/slices/userSlice";
+import { fetchUserById, setToken, setUser } from "../redux/slices/userSlice";
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import ImagePickerScreen from "../screens/ImagePickScreen";
 import {
@@ -210,19 +210,21 @@ export default function AppNavigator() {
   const [isSignedIn, setIsSignedIn] = useState<boolean>(false);
 
   useEffect(() => {
-    const loggedIn = async () => {
+    const logIn = async () => {
       const token = await SecureStore.getItemAsync("userToken");
+      const userDocId = await SecureStore.getItemAsync("userDocId");
 
-      if (token) {
+      if (token && userDocId) {
         setIsSignedIn(true);
         dispatch(setToken(token));
+        dispatch(fetchUserById(userDocId));
       } else {
         setIsSignedIn(false);
         dispatch(setToken(null));
       }
     };
-    loggedIn();
-  }, [user.token]);
+    logIn();
+  }, [user.token, user.user]);
 
   return (
     <NavigationContainer>

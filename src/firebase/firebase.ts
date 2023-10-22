@@ -1,8 +1,12 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import {
+  initializeAuth,
+  getReactNativePersistence,
+  createUserWithEmailAndPassword,
+} from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import { getFirestore } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
 import {
   getDownloadURL,
   getStorage,
@@ -10,6 +14,8 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
+import { IUser } from "../types/user.interface";
+import * as SecureStore from "expo-secure-store";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -43,6 +49,41 @@ const listFiles = async () => {
   // Find all the prefixes and items.
   const listResp = await listAll(listRef);
   return listResp.items;
+};
+
+const createUser = async (user: IUser) => {
+  const { email, firstName, lastName, photoUri, username, password } = user;
+  // create auth
+  const userAuth = await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password as string
+  ).catch((error) => {
+    // Error creating user auth
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+    alert(errorMessage);
+    return null;
+  });
+  if (userAuth) {
+    const userAuthToken = await userAuth.user.getIdToken();
+    let newUser = user;
+    // TODO: need to hash password
+    newUser = {
+      ...newUser,
+      userUID: userAuth.user.uid,
+      token: userAuthToken,
+    };
+    delete newUser.password;
+    // Create user doc for database
+    const userDoc = await addDoc(collection(db, "users"), newUser);
+    // Set userDoc's id in storage
+    await SecureStore.setItemAsync("userDocId", userDoc.id);
+    return { token: userAuthToken, userDoc: newUser };
+  } else {
+    return null;
+  }
 };
 
 const uploadToFirebase = async (
@@ -83,4 +124,4 @@ const uploadToFirebase = async (
   }
 };
 
-export { auth, db, storage, uploadToFirebase, listFiles };
+export { auth, db, storage, uploadToFirebase, listFiles, createUser };

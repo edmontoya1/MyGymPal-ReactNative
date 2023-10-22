@@ -4,7 +4,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useAppSelector } from "../redux/hooks/hooks";
 import { getHomeGyms } from "../redux/slices/gymSlice";
-import { IGym } from "../utils/gym";
+import { IGym } from "../types/gym";
 
 const data = [
   { label: "Gym 1", value: "1" },

@@ -1,13 +1,15 @@
 export type IUser = {
-  id: number;
+  userUID: string;
   email: string;
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
   followers_count: number;
   following_count: number;
-  photoUrl: string;
+  photoUri: string;
   pr_squat: number;
   pr_bench: number;
   pr_deadlift: number;
   username: string;
+  password: string | undefined;
+  token: string | undefined;
 };
