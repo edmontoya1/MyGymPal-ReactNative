@@ -1,14 +1,6 @@
-import {
-  View,
-  Text,
-  Image,
-  Button,
-  Pressable,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
-import { IUser } from "../types/user.interface";
+import { IUser } from "../types/user.definition";
 
 interface MiniProfileProps {
   user: IUser | null;

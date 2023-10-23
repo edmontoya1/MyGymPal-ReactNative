@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { NavigationContainer, RouteProp } from "@react-navigation/native";
-import {
-  NativeStackNavigationProp,
-  createNativeStackNavigator,
-} from "@react-navigation/native-stack";
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SignInScreen from "../screens/SignInScreen";
@@ -12,35 +9,21 @@ import SignUpScreen from "../screens/SignUpScreen";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import * as SecureStore from "expo-secure-store";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { fetchUserById, setToken, setUser } from "../redux/slices/userSlice";
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
-import ImagePickerScreen from "../screens/ImagePickScreen";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Animated,
-  Dimensions,
-} from "react-native";
+import { fetchUserById, setToken } from "../redux/slices/userSlice";
+import { FontAwesome5 } from "@expo/vector-icons";
+import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import "react-native-gesture-handler";
 import EmptyScreen from "../screens/EmptyScreen";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { pickAndGetImage, takePhoto } from "../utils/camera";
-import {
-  selectImageToUpload,
-  setImageToUpload,
-} from "../redux/slices/postSlice";
+import { setImageToUpload } from "../redux/slices/postSlice";
 import { PostScreenNavigationProp } from "../types/screens.definition";
 import PostForm from "../components/PostForm";
 import SearchScreen from "../screens/SearchScreen";
-import MessagesScreen from "../screens/InboxScreen";
 import InboxScreen from "../screens/InboxScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-
-const HomeStack = createNativeStackNavigator();
 
 function AppStackScreen({
   navigation,
@@ -54,7 +37,6 @@ function AppStackScreen({
     const options = ["Take Photo", "Upload From Camera Roll", "Cancel"];
     const destructiveButtonIndex = 0;
     const cancelButtonIndex = 2;
-    const title = "";
 
     showActionSheetWithOptions(
       {
@@ -244,13 +226,6 @@ export default function AppNavigator() {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
-
-function getWidth() {
-  const numbTabs = 3;
-  let width = Dimensions.get("window").width;
-  width = width - 40;
-  return width / numbTabs;
 }
 
 const styles = StyleSheet.create({

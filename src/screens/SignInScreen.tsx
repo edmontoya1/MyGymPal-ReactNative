@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text, SafeAreaView } from "react-native";
+import { StyleSheet, View, SafeAreaView } from "react-native";
 import React, { useState } from "react";
 import CustomInput from "../components/CustomInput/CustomInput";
 import CustomButton from "../components/CustomButton/CustomButton";
@@ -7,7 +7,7 @@ import { auth } from "../firebase/firebase";
 import { SignInScreenNavigationProp } from "../types/screens.definition";
 import * as SecureStore from "expo-secure-store";
 import { useAppDispatch } from "../redux/hooks/hooks";
-import { setUserUID, setToken, fetchUserById } from "../redux/slices/userSlice";
+import { setToken, fetchUserById } from "../redux/slices/userSlice";
 
 export default function SignInScreen({
   navigation,

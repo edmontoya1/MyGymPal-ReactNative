@@ -1,9 +1,7 @@
 import { StyleSheet, View, Text, SafeAreaView } from "react-native";
-import React, { useEffect, useState } from "react";
-import CustomInput from "../components/CustomInput/CustomInput";
+import React from "react";
 import CustomButton from "../components/CustomButton/CustomButton";
 import LottieView from "lottie-react-native";
-import { auth } from "../firebase/firebase";
 import { SignInScreenNavigationProp } from "../types/screens.definition";
 
 export default function SignInScreen({

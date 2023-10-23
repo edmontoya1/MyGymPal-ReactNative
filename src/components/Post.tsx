@@ -1,13 +1,6 @@
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, View, Text, Image } from "react-native";
 import React from "react";
-import { IPost } from "../types/post.interface";
+import { IPost } from "../types/post.definition";
 
 interface PostProp {
   post: IPost | null;

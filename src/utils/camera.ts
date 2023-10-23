@@ -1,7 +1,5 @@
 import * as ImagePicker from "expo-image-picker";
 import { Alert } from "react-native";
-import { uploadToFirebase, listFiles } from "../firebase/firebase";
-import { useAppDispatch } from "../redux/hooks/hooks";
 
 const takePhoto = async () => {
   try {

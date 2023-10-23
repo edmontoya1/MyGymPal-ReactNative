@@ -14,7 +14,7 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { IUser } from "../types/user.interface";
+import { IUser } from "../types/user.definition";
 import * as SecureStore from "expo-secure-store";
 
 // TODO: Add SDKs for Firebase products that you want to use

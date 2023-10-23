@@ -1,6 +1,6 @@
-import { FlatList, StyleSheet, Text, View, ViewToken } from "react-native";
+import { FlatList, StyleSheet, View, ViewToken } from "react-native";
 import React, { useCallback } from "react";
-import { IPost } from "../types/post.interface";
+import { IPost } from "../types/post.definition";
 import Post from "./Post";
 import { setCurrentPost } from "../redux/slices/postSlice";
 import { useAppDispatch } from "../redux/hooks/hooks";

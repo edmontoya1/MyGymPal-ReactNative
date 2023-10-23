@@ -1,25 +1,17 @@
 import {
   StyleSheet,
   View,
-  Text,
   SafeAreaView,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CustomInput from "../components/CustomInput/CustomInput";
 import CustomButton from "../components/CustomButton/CustomButton";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { createUser, auth } from "../firebase/firebase";
+import { createUser } from "../firebase/firebase";
 import { SignUpScreenNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import {
-  setUserUID,
-  setToken,
-  setUser,
-  selectUser,
-} from "../redux/slices/userSlice";
+import { setToken, setUser, selectUser } from "../redux/slices/userSlice";
 import * as SecureStore from "expo-secure-store";
-import * as bcrypt from "bcryptjs";
 
 export default function SignUpScreen({
   navigation,
@@ -27,8 +19,6 @@ export default function SignUpScreen({
   navigation: SignUpScreenNavigationProp;
 }) {
   const dispatch = useAppDispatch();
-  const userSlice = useAppSelector((state) => state.user);
-  const currUser = useAppSelector(selectUser);
   const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

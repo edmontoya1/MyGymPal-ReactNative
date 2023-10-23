@@ -3,16 +3,13 @@ import {
   Dimensions,
   StyleSheet,
   View,
-  FlatList,
   ActivityIndicator,
-  ViewToken,
 } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { HomeStackNavigationProp } from "../types/screens.definition";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import {
   fetchAllUsers,
-  getLoadedUsersError,
   getLoadedUsersStatus,
   getUsersMap,
   selectLoadedUsers,
@@ -21,17 +18,12 @@ import {
 import MiniProfile from "../components/MiniProfile";
 import {
   fetchAllPosts,
-  getPostsError,
   getPostsStatus,
   selectCurrentPost,
   selectPosts,
-  setCurrentPost,
 } from "../redux/slices/postSlice";
-import Post from "../components/Post";
-import { IPost } from "../types/post.interface";
-import { IUser } from "../types/user.interface";
+import { IUser } from "../types/user.definition";
 import MyFilesList from "../components/MyPostsList";
-import { auth } from "../firebase/firebase";
 
 export default function HomeScreen({
   navigation,
@@ -41,14 +33,11 @@ export default function HomeScreen({
   const dispatch = useAppDispatch();
   const loadedUsers = useAppSelector(selectLoadedUsers);
   const loadedUsersStatus = useAppSelector(getLoadedUsersStatus);
-  const loadedUsersError = useAppSelector(getLoadedUsersError);
   const posts = useAppSelector(selectPosts);
   const postsStatus = useAppSelector(getPostsStatus);
-  const postsError = useAppSelector(getPostsError);
   const currentPost = useAppSelector(selectCurrentPost);
   const usersMap = useAppSelector(getUsersMap);
   const [isMapSet, setIsMapSet] = useState<Boolean>(false);
-  const user = useAppSelector((state) => state.user);
 
   useEffect(() => {
     if (loadedUsersStatus === "idle") {

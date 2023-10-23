@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import { Text, TouchableOpacity, SafeAreaView } from "react-native";
 import React from "react";
 import { auth } from "../firebase/firebase";
 import { useAppDispatch } from "../redux/hooks/hooks";

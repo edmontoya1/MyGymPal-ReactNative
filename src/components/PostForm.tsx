@@ -1,17 +1,14 @@
 import {
   StyleSheet,
-  Text,
   View,
   Image,
   TextInput,
   Button,
   ActivityIndicator,
   SafeAreaView,
-  Dimensions,
 } from "react-native";
 import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import { getHomeGyms } from "../redux/slices/gymSlice";
 import DropdownList from "./DropdownList";
 import {
   getPostsStatus,
@@ -23,7 +20,6 @@ import { PostScreenNavigationProp } from "../types/screens.definition";
 
 const PostForm = ({ navigation }: { navigation: PostScreenNavigationProp }) => {
   const dispatch = useAppDispatch();
-  const homeGymsList = useAppSelector(getHomeGyms);
   const userUploadImageUri = useAppSelector(selectImageToUpload);
   const postStatus = useAppSelector(getPostsStatus);
   const [comment, setComment] = useState<string>("");

@@ -4,18 +4,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useAppSelector } from "../redux/hooks/hooks";
 import { getHomeGyms } from "../redux/slices/gymSlice";
-import { IGym } from "../types/gym";
-
-const data = [
-  { label: "Gym 1", value: "1" },
-  { label: "Gym 2", value: "2" },
-  { label: "Gym 3", value: "3" },
-  { label: "Gym 4", value: "4" },
-  { label: "Gym 5", value: "5" },
-  { label: "Gym 6", value: "6" },
-  { label: "Gym 7", value: "7" },
-  { label: "Gym 8", value: "8" },
-];
+import { IGym } from "../types/gym.definition";
 
 const DropdownList = () => {
   const homeGyms = useAppSelector(getHomeGyms);

@@ -1,15 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
-import { IUser } from "../../types/user.interface";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  limit,
-  query,
-  where,
-} from "firebase/firestore";
+import { IUser } from "../../types/user.definition";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
 import * as SecureStore from "expo-secure-store";
 
@@ -25,7 +17,6 @@ export const fetchUserById = createAsyncThunk(
         return snapshot.docs[0].data() as IUser;
       });
     } catch (error) {
-      console.log(error);
       return null;
     }
   }

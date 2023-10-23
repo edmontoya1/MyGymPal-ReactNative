@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebase/firebase";
-import { IUser } from "../../types/user.interface";
+import { IUser } from "../../types/user.definition";
 
 export const fetchAllUsers = createAsyncThunk(
   "users/fetchAllUsers",

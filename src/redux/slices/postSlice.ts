@@ -1,5 +1,5 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { IPost } from "../../types/post.interface";
+import { IPost } from "../../types/post.definition";
 import { RootState } from "../store";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db, listFiles, uploadToFirebase } from "../../firebase/firebase";
