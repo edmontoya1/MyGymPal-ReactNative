@@ -25,11 +25,7 @@ import InboxScreen from "../screens/InboxScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-function AppStackScreen({
-  navigation,
-}: {
-  navigation: PostScreenNavigationProp;
-}) {
+function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }) {
   const dispatch = useAppDispatch();
   const { showActionSheetWithOptions } = useActionSheet();
 
@@ -70,7 +66,7 @@ function AppStackScreen({
             console.log("Cancel button");
           // Canceled
         }
-      }
+      },
     );
   };
 
@@ -96,8 +92,7 @@ function AppStackScreen({
           },
           paddingHorizontal: 20,
         },
-      })}
-    >
+      })}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
@@ -105,11 +100,7 @@ function AppStackScreen({
           tabBarIcon: ({ focused }) => {
             return (
               <View style={styles.icon}>
-                <FontAwesome5
-                  name="home"
-                  size={20}
-                  color={focused ? "red" : "gray"}
-                ></FontAwesome5>
+                <FontAwesome5 name="home" size={20} color={focused ? "red" : "gray"}></FontAwesome5>
               </View>
             );
           },
@@ -125,8 +116,7 @@ function AppStackScreen({
                 <FontAwesome5
                   name="search"
                   size={20}
-                  color={focused ? "red" : "gray"}
-                ></FontAwesome5>
+                  color={focused ? "red" : "gray"}></FontAwesome5>
               </View>
             );
           },
@@ -139,10 +129,7 @@ function AppStackScreen({
           tabBarIcon: () => (
             <TouchableOpacity onPress={onPress}>
               <View style={styles.plusIconContainer}>
-                <Image
-                  source={require("../assets/plus.png")}
-                  style={styles.plusIcon}
-                />
+                <Image source={require("../assets/plus.png")} style={styles.plusIcon} />
               </View>
             </TouchableOpacity>
           ),
@@ -158,8 +145,7 @@ function AppStackScreen({
                 <FontAwesome5
                   name="inbox"
                   size={20}
-                  color={focused ? "red" : "gray"}
-                ></FontAwesome5>
+                  color={focused ? "red" : "gray"}></FontAwesome5>
               </View>
             );
           },
@@ -175,8 +161,7 @@ function AppStackScreen({
                 <FontAwesome5
                   name="user-alt"
                   size={20}
-                  color={focused ? "red" : "gray"}
-                ></FontAwesome5>
+                  color={focused ? "red" : "gray"}></FontAwesome5>
               </View>
             );
           },
