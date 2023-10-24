@@ -1,12 +1,10 @@
-import { StyleSheet, View } from "react-native";
 import React from "react";
+import { View } from "react-native";
 
-type Props = {};
+type Props = object;
 
 const EmptyScreen = (props: Props) => {
-  return <View></View>;
+	return <View />;
 };
 
 export default EmptyScreen;
-
-const styles = StyleSheet.create({});

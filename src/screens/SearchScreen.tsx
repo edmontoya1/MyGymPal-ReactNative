@@ -1,16 +1,14 @@
-import { SafeAreaView, StyleSheet, Text } from "react-native";
 import React from "react";
+import { SafeAreaView, Text } from "react-native";
 
-type Props = {};
+type Props = object;
 
 const SearchScreen = (props: Props) => {
-  return (
-    <SafeAreaView>
-      <Text>SearchScreen</Text>
-    </SafeAreaView>
-  );
+	return (
+		<SafeAreaView>
+			<Text>SearchScreen</Text>
+		</SafeAreaView>
+	);
 };
 
 export default SearchScreen;
-
-const styles = StyleSheet.create({});
