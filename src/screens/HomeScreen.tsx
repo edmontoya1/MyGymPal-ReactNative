@@ -3,6 +3,7 @@ import { SafeAreaView, Dimensions, StyleSheet, View, ActivityIndicator } from "r
 
 import MiniProfile from "../components/MiniProfile";
 import MyFilesList from "../components/MyPostsList";
+import { fakePostData } from "../lib/data";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import {
 	fetchAllPosts,
@@ -55,22 +56,24 @@ export default function HomeScreen({ navigation }: { navigation: HomeStackNaviga
 	return (
 		<SafeAreaView style={styles.container}>
 			<View style={styles.miniProfileContainer}>
-				{loadedUsersStatus === "loading" || currentPost == null ? (
+				{/* {loadedUsersStatus === "loading" || currentPost == null ? (
 					<View style={styles.loading}>
 						<ActivityIndicator size="large" />
 					</View>
 				) : (
 					<MiniProfile user={usersMap[currentPost?.username]} />
-				)}
+				)} */}
+				<MiniProfile user={usersMap[currentPost?.username as string]} />
 			</View>
 			<View style={styles.flatListContainer}>
-				{postsStatus === "loading" ? (
+				{/* {postsStatus === "loading" ? (
 					<View style={styles.loading}>
 						<ActivityIndicator size="large" />
 					</View>
 				) : (
 					<MyFilesList posts={posts} />
-				)}
+				)} */}
+				<MyFilesList posts={fakePostData} />
 			</View>
 		</SafeAreaView>
 	);
@@ -78,7 +81,7 @@ export default function HomeScreen({ navigation }: { navigation: HomeStackNaviga
 
 const styles = StyleSheet.create({
 	container: {
-		backgroundColor: "#212121",
+		backgroundColor: "#FFFFFF",
 		height: Dimensions.get("window").height,
 		alignItems: "center",
 		gap: 10
@@ -89,6 +92,7 @@ const styles = StyleSheet.create({
 	},
 	flatListContainer: {
 		width: Dimensions.get("window").width * 0.9,
+		borderRadius: 15,
 		flex: 3
 	},
 	loading: {
