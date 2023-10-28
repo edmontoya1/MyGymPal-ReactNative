@@ -75,8 +75,6 @@ function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }
 		<Tab.Navigator
 			screenOptions={({ route }) => ({
 				tabBarShowLabel: false,
-				tabBarActiveTintColor: "red",
-				tabBarInactiveTintColor: "black",
 				headerShown: false,
 				tabBarStyle: {
 					position: "absolute",
@@ -101,7 +99,7 @@ function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }
 					tabBarIcon: ({ focused }) => {
 						return (
 							<View style={styles.icon}>
-								<FontAwesome5 name="home" size={20} color={focused ? "red" : "gray"} />
+								<FontAwesome5 name="home" size={20} color={focused ? "black" : "gray"} />
 							</View>
 						);
 					}
@@ -114,7 +112,7 @@ function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }
 					tabBarIcon: ({ focused }) => {
 						return (
 							<View style={styles.icon}>
-								<FontAwesome5 name="search" size={20} color={focused ? "red" : "gray"} />
+								<FontAwesome5 name="search" size={20} color={focused ? "black" : "gray"} />
 							</View>
 						);
 					}
@@ -140,7 +138,7 @@ function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }
 					tabBarIcon: ({ focused }) => {
 						return (
 							<View style={styles.icon}>
-								<FontAwesome5 name="inbox" size={20} color={focused ? "red" : "gray"} />
+								<FontAwesome5 name="inbox" size={20} color={focused ? "black" : "gray"} />
 							</View>
 						);
 					}
@@ -153,7 +151,7 @@ function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }
 					tabBarIcon: ({ focused }) => {
 						return (
 							<View style={styles.icon}>
-								<FontAwesome5 name="user-alt" size={20} color={focused ? "red" : "gray"} />
+								<FontAwesome5 name="user-alt" size={20} color={focused ? "black" : "gray"} />
 							</View>
 						);
 					}
@@ -218,7 +216,7 @@ const styles = StyleSheet.create({
 	plusIconContainer: {
 		width: 55,
 		height: 55,
-		backgroundColor: "red",
+		backgroundColor: "black",
 		borderRadius: 50,
 		justifyContent: "center",
 		alignItems: "center",

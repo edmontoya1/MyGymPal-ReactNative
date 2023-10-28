@@ -86,17 +86,21 @@ const styles = StyleSheet.create({
 	recordsInfo: {
 		backgroundColor: "#FFFFFF",
 		padding: 10,
-		borderRadius: 15
+		borderRadius: 15,
+		borderWidth: 0.5
 	},
 	infoStat: {
-		backgroundColor: "blue",
+		backgroundColor: "white",
 		borderRadius: 15,
-		padding: 10
+		padding: 10,
+		borderColor: "#000",
+		borderWidth: 0.5
 	},
 	img: {
 		borderRadius: 50,
 		width: 50,
-		height: 50
+		height: 50,
+		borderWidth: 0.5
 	},
 	button: {
 		alignItems: "center",
@@ -105,7 +109,8 @@ const styles = StyleSheet.create({
 		width: 75,
 		height: 30,
 		borderRadius: 15,
-		padding: 5
+		padding: 5,
+		borderWidth: 0.5
 	},
 	text: {
 		textAlign: "center"

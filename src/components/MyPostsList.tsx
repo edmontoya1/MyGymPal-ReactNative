@@ -44,6 +44,7 @@ const MyPostsList = ({ posts }: Props) => {
 			initialNumToRender={10} // Initial number of items to render
 			maxToRenderPerBatch={10} // Maximum number of items to render per batch
 			windowSize={5} // Number of items to keep in the rendering window
+			showsVerticalScrollIndicator={false}
 		/>
 	);
 };
