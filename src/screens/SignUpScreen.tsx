@@ -1,118 +1,124 @@
-import * as SecureStore from "expo-secure-store";
-import React, { useState } from "react";
-import { StyleSheet, View, SafeAreaView, ActivityIndicator } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import LottieView from "lottie-react-native";
+import React, { useEffect, useState } from "react";
+import {
+	StyleSheet,
+	View,
+	SafeAreaView,
+	ActivityIndicator,
+	TextInput,
+	Text,
+	Dimensions,
+	TouchableOpacity
+} from "react-native";
 
-import CustomButton from "../components/CustomButton/CustomButton";
-import CustomInput from "../components/CustomInput/CustomInput";
-import { createUser } from "../firebase/firebase";
-import { useAppDispatch } from "../redux/hooks/hooks";
-import { setToken, setUser } from "../redux/slices/userSlice";
+import { createUserAuth } from "../firebase/firebase";
+import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
+import { selectUserStatus } from "../redux/slices/userSlice";
+import { ISignUpValidation } from "../types/error.definition";
 import { SignUpScreenNavigationProp } from "../types/screens.definition";
 
 export default function SignUpScreen({ navigation }: { navigation: SignUpScreenNavigationProp }) {
 	const dispatch = useAppDispatch();
-	const [isLoading, setIsLoading] = useState(false);
-	const [username, setUsername] = useState("");
-	const [password, setPassword] = useState("");
-	const [email, setEmail] = useState("");
-	const [firstName, setFirstName] = useState("");
-	const [lastName, setLastName] = useState("");
-	const [photoUri, setPhotoUri] = useState("");
+	const userStatus = useAppSelector(selectUserStatus);
+	const [email, setEmail] = useState<string | undefined>(undefined);
+	const [password, setPassword] = useState<string | undefined>(undefined);
+	const [confimedPassword, setConfimedPassword] = useState<string | undefined>(undefined);
+	const [errors, setErrors] = useState<string[]>([]);
+
+	useEffect(() => {
+		validateForm();
+	}, [password, email, confimedPassword]);
+
+	const validateForm = () => {
+		const newErrors = [];
+
+		if (!email) {
+			newErrors.push("Email is required");
+		} else if (!/\S+@\S+\.\S+/.test(email)) {
+			newErrors.push("Email is invalid.");
+		}
+
+		if (!password) {
+			newErrors.push("Password is required");
+		} else if (password.length < 6) {
+			newErrors.push("Password must be at least 6 characters.");
+		}
+
+		if (password !== confimedPassword) {
+			newErrors.push("Passwords do not match");
+		}
+
+		setErrors(newErrors);
+		return newErrors.length === 0;
+	};
 
 	const onGoBackPressed = () => {
 		navigation.goBack();
 	};
 
-	const onSignUpPressed = async () => {
-		setIsLoading(true);
-
-		const user = await createUser({
-			firstName,
-			lastName,
-			email,
-			photoUri,
-			username,
-			password,
-			userUID: "",
-			followers_count: 0,
-			following_count: 0,
-			pr_squat: 0,
-			pr_bench: 0,
-			pr_deadlift: 0,
-			token: undefined
-		});
-
-		if (user?.token) {
-			await SecureStore.setItemAsync("userToken", user.token);
-			dispatch(setToken(user.token));
-			dispatch(setUser(user.userDoc));
-		} else {
-			await SecureStore.deleteItemAsync("userToken");
-			dispatch(setToken(null));
+	const onSubmit = async () => {
+		const form = validateForm();
+		if (form && email && password) {
+			navigation.navigate("EditProfileScreen", {
+				email,
+				password
+			});
 		}
-
-		setIsLoading(false);
 	};
 
 	return (
 		<SafeAreaView style={styles.container}>
-			{isLoading ? (
+			{userStatus === "loading" ? (
 				<View style={styles.loading}>
 					<ActivityIndicator size="large" />
 				</View>
 			) : (
-				<View style={styles.content}>
-					<CustomButton text="Back" onPress={onGoBackPressed} />
-					<CustomInput
-						placeholder="First Name"
-						value={firstName}
-						setValue={setFirstName}
-						secureTextEntry={false}
-						field="First Name"
-					/>
-					<CustomInput
-						placeholder="Username"
-						value={username}
-						setValue={setUsername}
-						secureTextEntry={false}
-						field="Username"
-					/>
-					<CustomInput
-						placeholder="Photo"
-						value={photoUri}
-						setValue={setPhotoUri}
-						secureTextEntry={false}
-						field="Photo"
-					/>
-					<CustomInput
-						placeholder="Last Name"
-						value={lastName}
-						setValue={setLastName}
-						secureTextEntry={false}
-						field="Last Name"
-					/>
-					<CustomInput
-						placeholder="Email"
-						value={email}
-						setValue={setEmail}
-						secureTextEntry={false}
-						field="Email"
-					/>
-					<CustomInput
-						placeholder="Password"
-						value={password}
-						setValue={setPassword}
-						secureTextEntry
-						field="Password"
-					/>
-					<CustomInput
-						placeholder="Confirm Password"
-						value={password}
-						setValue={setPassword}
-						secureTextEntry
-						field="Confirm Password"
-					/>
-					<CustomButton text="Sign Up" onPress={onSignUpPressed} />
+				<View style={styles.contentContainer}>
+					{/* Back Button */}
+					<TouchableOpacity onPress={onGoBackPressed}>
+						<Ionicons name="arrow-back" size={30} />
+					</TouchableOpacity>
+					{/* Content */}
+					<View style={styles.content}>
+						<LottieView
+							source={require("../assets/Avatar.json")}
+							style={styles.lottie}
+							autoPlay
+							loop
+						/>
+						<Text style={styles.title}>Create Your Account</Text>
+						<View style={styles.inputContainer}>
+							<TextInput
+								placeholder="Email"
+								value={email}
+								onChangeText={setEmail}
+								style={styles.input}
+							/>
+							<TextInput
+								placeholder="Password"
+								value={password}
+								onChangeText={setPassword}
+								style={styles.input}
+								secureTextEntry
+							/>
+							<TextInput
+								placeholder="Confirm Passowrd"
+								value={confimedPassword}
+								onChangeText={setConfimedPassword}
+								style={styles.input}
+								secureTextEntry
+							/>
+							<TouchableOpacity onPress={onSubmit} style={styles.button}>
+								<Text>Continue</Text>
+							</TouchableOpacity>
+							{errors.map((error, index) => (
+								<Text key={index} style={styles.error}>
+									{error}
+								</Text>
+							))}
+						</View>
+					</View>
 				</View>
 			)}
 		</SafeAreaView>
@@ -121,20 +127,63 @@ export default function SignUpScreen({ navigation }: { navigation: SignUpScreenN
 
 const styles = StyleSheet.create({
 	container: {
-		height: "100%",
+		height: Dimensions.get("window").height,
+		width: Dimensions.get("window").width,
 		alignItems: "center",
-		backgroundColor: "#212121"
+		justifyContent: "center",
+		backgroundColor: "#FFF"
+	},
+	contentContainer: {
+		height: "100%",
+		width: "80%"
 	},
 	content: {
-		width: "80%",
-		justifyContent: "center",
+		alignItems: "center"
+	},
+	inputContainer: {
+		width: "100%",
 		alignItems: "center",
-		height: "100%",
-		gap: 5
+		gap: 15
+	},
+	input: {
+		height: 40,
+		width: "80%",
+		padding: 10,
+		backgroundColor: "#fff",
+		borderRadius: 5,
+		shadowColor: "#000",
+		shadowOpacity: 0.4,
+		shadowOffset: {
+			width: 0,
+			height: 0
+		}
+	},
+	lottie: {
+		height: 400
 	},
 	loading: {
-		backgroundColor: "#e2e2e2",
+		backgroundColor: "#E0E0E0",
 		justifyContent: "center",
+		alignItems: "center",
 		flex: 1
+	},
+	error: {
+		color: "red",
+		fontSize: 12
+	},
+	button: {
+		height: 40,
+		width: "80%",
+		backgroundColor: "#e2e2e2",
+		borderRadius: 5,
+		justifyContent: "center",
+		alignItems: "center"
+	},
+	title: {
+		fontWeight: "500",
+		marginTop: -40,
+		marginBottom: 20,
+		fontSize: 18,
+		color: "gray"
 	}
 });
