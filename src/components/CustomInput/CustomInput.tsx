@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
 		borderWidth: 2,
 		justifyContent: "center",
 		borderRadius: 10,
-		height: 40,
+		height: 25,
 		backgroundColor: "white"
 	},
 	input: {
