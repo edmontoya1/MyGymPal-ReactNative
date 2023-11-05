@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, Dimensions, StyleSheet, View, ActivityIndicator } from "react-native";
+import { SafeAreaView, Dimensions, StyleSheet, View } from "react-native";
 
 import MiniProfile from "../components/MiniProfile";
 import MyFilesList from "../components/MyPostsList";
 import { fakePostData } from "../lib/data";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
-import {
-	fetchAllPosts,
-	getPostsStatus,
-	selectCurrentPost,
-	selectPosts
-} from "../redux/slices/postSlice";
+import { fetchAllPosts, getPostsStatus, selectCurrentPost } from "../redux/slices/postSlice";
 import {
 	fetchAllUsers,
 	getLoadedUsersStatus,
@@ -25,7 +20,6 @@ export default function HomeScreen({ navigation }: { navigation: HomeStackNaviga
 	const dispatch = useAppDispatch();
 	const loadedUsers = useAppSelector(selectLoadedUsers);
 	const loadedUsersStatus = useAppSelector(getLoadedUsersStatus);
-	const posts = useAppSelector(selectPosts);
 	const postsStatus = useAppSelector(getPostsStatus);
 	const currentPost = useAppSelector(selectCurrentPost);
 	const usersMap = useAppSelector(getUsersMap);

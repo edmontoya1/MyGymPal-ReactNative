@@ -12,14 +12,11 @@ import {
 	TouchableOpacity
 } from "react-native";
 
-import { createUserAuth } from "../firebase/firebase";
-import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
+import { useAppSelector } from "../redux/hooks/hooks";
 import { selectUserStatus } from "../redux/slices/userSlice";
-import { ISignUpValidation } from "../types/error.definition";
 import { SignUpScreenNavigationProp } from "../types/screens.definition";
 
 export default function SignUpScreen({ navigation }: { navigation: SignUpScreenNavigationProp }) {
-	const dispatch = useAppDispatch();
 	const userStatus = useAppSelector(selectUserStatus);
 	const [email, setEmail] = useState<string | undefined>(undefined);
 	const [password, setPassword] = useState<string | undefined>(undefined);
