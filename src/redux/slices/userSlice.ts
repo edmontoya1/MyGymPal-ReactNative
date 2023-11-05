@@ -16,12 +16,15 @@ export const fetchUserById = createAsyncThunk("user/fetchUserById", async (id: s
 			return snapshot.docs[0].data() as IUser;
 		});
 	} catch (error) {
+		console.log(error);
 		return null;
 	}
 });
+
 interface UserState {
 	token: string | null;
 	user: IUser | null;
+	authUID: string | null;
 	status: "idle" | "loading" | "succeeded" | "failed";
 	error: null;
 }
@@ -29,6 +32,7 @@ interface UserState {
 const initialState: UserState = {
 	token: null,
 	user: null,
+	authUID: null,
 	status: "idle",
 	error: null
 };
@@ -74,5 +78,6 @@ export const { setFirstName, setToken, setUserUID, setUser } = userSlice.actions
 export const selectFirstName = (state: RootState) => state.user.user?.firstName;
 export const selectToken = (state: RootState) => state.user.token;
 export const selectUser = (state: RootState) => state.user.user;
+export const selectUserStatus = (state: RootState) => state.user.status;
 
 export default userSlice.reducer;
