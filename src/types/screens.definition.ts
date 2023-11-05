@@ -9,6 +9,10 @@ export type RootStackParamList = {
 	ProfileScreen: undefined;
 	PostFormScreen: undefined;
 	SearchScreen: undefined;
+	EditProfileScreen: {
+		email: string;
+		password: string;
+	};
 };
 
 export type WelcomeScreenRouteProp = RouteProp<RootStackParamList, "WelcomeScreen">;
@@ -44,3 +48,11 @@ export type SearchScreenNavigationProp = NativeStackNavigationProp<
 	RootStackParamList,
 	"SearchScreen"
 >;
+
+// Edit Screen
+export type EditProfileScreenNavigationProp = NativeStackNavigationProp<
+	RootStackParamList,
+	"EditProfileScreen"
+>;
+
+export type EditProfileScreenRouteProp = RouteProp<RootStackParamList, "EditProfileScreen">;

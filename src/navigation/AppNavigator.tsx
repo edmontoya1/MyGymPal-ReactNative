@@ -11,6 +11,7 @@ import PostForm from "../components/PostForm";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import { setImageToUpload } from "../redux/slices/postSlice";
 import { fetchUserById, setToken } from "../redux/slices/userSlice";
+import EditProfileScreen from "../screens/EditProfileScreen";
 import EmptyScreen from "../screens/EmptyScreen";
 import HomeScreen from "../screens/HomeScreen";
 import InboxScreen from "../screens/InboxScreen";
@@ -20,10 +21,10 @@ import SignInScreen from "../screens/SignInScreen";
 import SignUpScreen from "../screens/SignUpScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import "react-native-gesture-handler";
-import { PostScreenNavigationProp } from "../types/screens.definition";
+import { PostScreenNavigationProp, RootStackParamList } from "../types/screens.definition";
 import { pickAndGetImage, takePhoto } from "../utils/camera";
 
-const Stack = createNativeStackNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator();
 
 function AppStackScreen({ navigation }: { navigation: PostScreenNavigationProp }) {
@@ -196,6 +197,11 @@ export default function AppNavigator() {
 						<Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
 						<Stack.Screen name="SignInScreen" component={SignInScreen} />
 						<Stack.Screen name="SignUpScreen" component={SignUpScreen} />
+						<Stack.Screen
+							name="EditProfileScreen"
+							component={EditProfileScreen}
+							initialParams={{ email: "", password: "" }}
+						/>
 					</>
 				)}
 			</Stack.Navigator>
