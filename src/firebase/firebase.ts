@@ -10,7 +10,8 @@ import {
 import { addDoc, collection, getFirestore } from "firebase/firestore";
 import { getDownloadURL, getStorage, listAll, ref, uploadBytesResumable } from "firebase/storage";
 
-import { IUser } from "../types/user.definition";
+import { UploadResponse } from "../types/firebase.definition";
+import { IUser, UserSignUp } from "../types/user.definition";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -78,6 +79,39 @@ const createUser = async (user: IUser) => {
 	}
 };
 
+/**
+ * Creates a new linked user auth and user doc account.
+ * @returns {UserCredential} The user's auth
+ * @returns {DocumentReference<DocumentData, DocumentData>} The user's document
+ * @returns {IUser} The created user
+ */
+export const createUserAuthAndDoc = async (user: UserSignUp) => {
+	try {
+		return await createUserWithEmailAndPassword(auth, user.email, user.password).then(
+			async (userCredential) => {
+				const userAuthToken = await userCredential.user.getIdToken();
+				const userToCreate: IUser = {
+					...user,
+					userUID: userCredential.user.uid,
+					followers_count: 0,
+					following_count: 0,
+					pr_squat: 0,
+					pr_bench: 0,
+					pr_deadlift: 0,
+					username: user.userName,
+					token: userAuthToken
+				};
+				delete userToCreate.password;
+				const userDoc = await addDoc(collection(db, "users"), userToCreate);
+				return { userCredential, userDoc, userToCreate };
+			}
+		);
+	} catch (error) {
+		console.log(error);
+		alert(error);
+	}
+};
+
 const uploadToFirebase = async (
 	uri: string | undefined,
 	name: string | undefined,
@@ -91,7 +125,7 @@ const uploadToFirebase = async (
 
 		const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
-		return new Promise((resolve, reject) => {
+		return new Promise<UploadResponse>((resolve, reject) => {
 			uploadTask.on(
 				"state_changed",
 				(snapshot) => {
