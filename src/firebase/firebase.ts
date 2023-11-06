@@ -1,17 +1,25 @@
-// Import the functions you need from the SDKs you need
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
 import { initializeApp } from "firebase/app";
 import {
 	initializeAuth,
 	getReactNativePersistence,
-	createUserWithEmailAndPassword
+	createUserWithEmailAndPassword,
+	UserCredential
 } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import {
+	addDoc,
+	collection,
+	doc,
+	getDoc,
+	getDocs,
+	getFirestore,
+	query,
+	where
+} from "firebase/firestore";
 import { getDownloadURL, getStorage, listAll, ref, uploadBytesResumable } from "firebase/storage";
 
 import { UploadResponse } from "../types/firebase.definition";
-import { IUser, UserSignUp } from "../types/user.definition";
+import { IUser, UserAuth, UserSignUp } from "../types/user.definition";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -47,35 +55,48 @@ const listFiles = async () => {
 	return listResp.items;
 };
 
-const createUser = async (user: IUser) => {
-	const { email, password } = user;
-	// create auth
-	const userAuth = await createUserWithEmailAndPassword(auth, email, password as string).catch(
-		(error) => {
-			// Error creating user auth
-			const errorMessage = error.message;
-			// ..
-			alert(errorMessage);
-			return null;
-		}
-	);
-	if (userAuth) {
-		const userAuthToken = await userAuth.user.getIdToken();
-		let newUser = user;
-		// TODO: need to hash password
-		newUser = {
-			...newUser,
-			userUID: userAuth.user.uid,
+/**
+ * Creates a new user auth account
+ * @param user The user to create new auth account
+ * @returns {Promise<UserCredential | undefined>} User Auth Account
+ */
+export const createUserAuth = async (user: UserAuth) => {
+	try {
+		return await createUserWithEmailAndPassword(auth, user.email, user.password);
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+/**
+ *
+ * @param userCredential Created Auth credential
+ * @param user User to create new document
+ * @returns {Promise<{userCredential: UserCredential;userDoc: DocumentReference<DocumentData, DocumentData>;userToCreate: IUser;} | undefined>}
+ * An object containing the user auth credentials, the new user's document, and the new user object
+ */
+export const linkUserAuthToNewUserDoc = async (
+	userCredential: UserCredential,
+	user: UserSignUp
+) => {
+	try {
+		const userAuthToken = await userCredential.user.getIdToken();
+		const userToCreate: IUser = {
+			...user,
+			userUID: userCredential.user.uid,
+			followers_count: 0,
+			following_count: 0,
+			pr_squat: 0,
+			pr_bench: 0,
+			pr_deadlift: 0,
+			username: user.userName,
 			token: userAuthToken
 		};
-		delete newUser.password;
-		// Create user doc for database
-		const userDoc = await addDoc(collection(db, "users"), newUser);
-		// Set userDoc's id in storage
-		await SecureStore.setItemAsync("userDocId", userDoc.id);
-		return { token: userAuthToken, userDoc: newUser };
-	} else {
-		return null;
+		delete userToCreate.password;
+		const userDoc = await addDoc(collection(db, "users"), userToCreate);
+		return { userCredential, userDoc, userToCreate };
+	} catch (error) {
+		console.log(error);
 	}
 };
 
@@ -112,16 +133,49 @@ export const createUserAuthAndDoc = async (user: UserSignUp) => {
 	}
 };
 
+/**
+ * Fetches the user document by the user's document ID
+ * @param id The user's document id
+ * @returns {Promise<DocumentSnapshot<DocumentData, DocumentData> | undefined>}
+ * Promise where resolved, returns the users document, else undefined
+ */
+export const fetchUserById = async (id: string) => {
+	try {
+		const docRef = doc(db, "users", id);
+		const docSnap = await getDoc(docRef);
+		return docSnap;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+/**
+ * Fetches the user document using the user's Auth ID
+ * @param id The user's auth UID
+ * @returns {Promise<QuerySnapshot<DocumentData, DocumentData> | undefined>}
+ * Promise where resolved, returns the users document, else undefined
+ */
+export const fetchUserByUID = async (id: string) => {
+	try {
+		const userRef = collection(db, "users");
+		const userQuery = query(userRef, where("userUID", "==", id));
+		return getDocs(userQuery).then((userSnapshot) => userSnapshot);
+	} catch (error) {
+		console.log(error);
+	}
+};
+
 const uploadToFirebase = async (
 	uri: string | undefined,
 	name: string | undefined,
+	authUID: string | undefined,
 	onProgress: (progress: number) => void
 ) => {
 	if (uri) {
 		const fetchResponse = await fetch(uri);
 		const theBlob = await fetchResponse.blob();
 
-		const imageRef = ref(getStorage(), `images/${name}`);
+		const imageRef = ref(getStorage(), `images/${authUID}/${name}`);
 
 		const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
@@ -149,4 +203,4 @@ const uploadToFirebase = async (
 	}
 };
 
-export { auth, db, storage, uploadToFirebase, listFiles, createUser };
+export { auth, db, storage, uploadToFirebase, listFiles };
