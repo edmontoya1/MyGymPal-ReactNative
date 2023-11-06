@@ -8,9 +8,10 @@ import React, { useEffect, useState } from "react";
 import { View, StyleSheet, TouchableOpacity, Image } from "react-native";
 
 import PostForm from "../components/PostForm";
+import { fetchUserById } from "../firebase/firebase";
 import { useAppDispatch, useAppSelector } from "../redux/hooks/hooks";
 import { setImageToUpload } from "../redux/slices/postSlice";
-import { fetchUserById, setToken } from "../redux/slices/userSlice";
+import { setToken, setUser } from "../redux/slices/userSlice";
 import EditProfileScreen from "../screens/EditProfileScreen";
 import EmptyScreen from "../screens/EmptyScreen";
 import HomeScreen from "../screens/HomeScreen";
@@ -22,6 +23,7 @@ import SignUpScreen from "../screens/SignUpScreen";
 import WelcomeScreen from "../screens/WelcomeScreen";
 import "react-native-gesture-handler";
 import { PostScreenNavigationProp, RootStackParamList } from "../types/screens.definition";
+import { IUser } from "../types/user.definition";
 import { pickAndGetImage, takePhoto } from "../utils/camera";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -175,14 +177,16 @@ export default function AppNavigator() {
 			if (token && userDocId) {
 				setIsSignedIn(true);
 				dispatch(setToken(token));
-				dispatch(fetchUserById(userDocId));
+
+				const userDoc = await fetchUserById(userDocId);
+				dispatch(setUser(userDoc?.data() as IUser));
 			} else {
 				setIsSignedIn(false);
 				dispatch(setToken(null));
 			}
 		};
 		logIn();
-	}, [user.token, user.user]);
+	}, [user.token]);
 
 	return (
 		<NavigationContainer>

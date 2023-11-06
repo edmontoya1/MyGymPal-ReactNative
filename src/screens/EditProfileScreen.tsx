@@ -13,7 +13,7 @@ import {
 	View
 } from "react-native";
 
-import { createUserAuthAndDoc, uploadToFirebase } from "../firebase/firebase";
+import { createUserAuth, linkUserAuthToNewUserDoc, uploadToFirebase } from "../firebase/firebase";
 import { useAppDispatch } from "../redux/hooks/hooks";
 import { setToken, setUser, setUserUID } from "../redux/slices/userSlice";
 import {
@@ -31,8 +31,6 @@ const EditProfileScreen = ({ navigation, route }: Props) => {
 	const { email, password } = route.params;
 	const dispatch = useAppDispatch();
 	const [imageUri, setImageUri] = useState<string | undefined>(undefined);
-	const [imageName, setImageName] = useState<string | undefined>(undefined);
-	const [imageDownloadUrl, setImageDownloadUrl] = useState<string | undefined>(undefined);
 	const [firstName, setFirstName] = useState<string | undefined>(undefined);
 	const [lastName, setLastName] = useState<string | undefined>(undefined);
 	const [username, setUsername] = useState<string | undefined>(undefined);
@@ -43,42 +41,54 @@ const EditProfileScreen = ({ navigation, route }: Props) => {
 	};
 
 	const handleSelectImage = async () => {
-		setIsLoading(true);
 		const uri = await pickAndGetImage();
-
-		if (uri) {
-			const fileName = uri.split("/").pop();
-			const uploadResp = await uploadToFirebase(uri, fileName, (v: any) => {
-				console.log("Uploading picked image: ", v);
-			});
-			setImageName(fileName);
-			setImageDownloadUrl(uploadResp?.downloadUrl);
-		}
 		setImageUri(uri);
-		setIsLoading(false);
 	};
 
 	const handleSignUp = async () => {
 		setIsLoading(true);
-		const newUser = await createUserAuthAndDoc({
+
+		// Create Auth Account
+		const userAuth = await createUserAuth({
 			email,
-			password,
-			imageUri: imageName as string,
-			imageDownloadUrl: imageDownloadUrl as string,
-			firstName: firstName as string,
-			lastName: lastName as string,
-			userName: username as string
+			password
 		});
-		setIsLoading(false);
-		if (newUser) {
-			const { userCredential, userDoc, userToCreate } = newUser;
-			const token = await userCredential.user.getIdToken();
-			dispatch(setUser(userToCreate));
-			dispatch(setUserUID(userCredential.user.uid));
-			dispatch(setToken(token));
-			await SecureStore.setItemAsync("userToken", token);
-			await SecureStore.setItemAsync("userDocId", userDoc.id);
+
+		if (imageUri && userAuth) {
+			// Upload to firebase storage and get download url
+			const fileName = imageUri.split("/").pop();
+			const uploadResp = await uploadToFirebase(
+				imageUri,
+				fileName,
+				userAuth?.user.uid,
+				(v: any) => {
+					console.log("Uploading picked image: ", v);
+				}
+			);
+
+			// Link user's auth account to a new user document
+			const createdUserDoc = await linkUserAuthToNewUserDoc(userAuth, {
+				email,
+				password,
+				profileImageUri: fileName as string,
+				profileImageDownloadUrl: uploadResp?.downloadUrl as string,
+				firstName: firstName as string,
+				lastName: lastName as string,
+				userName: username as string
+			});
+
+			if (createdUserDoc) {
+				const { userCredential, userDoc, userToCreate } = createdUserDoc;
+				const token = await userCredential.user.getIdToken();
+				dispatch(setUser(userToCreate));
+				dispatch(setUserUID(userCredential.user.uid));
+				dispatch(setToken(token));
+				await SecureStore.setItemAsync("userToken", token);
+				await SecureStore.setItemAsync("userDocId", userDoc.id);
+			}
 		}
+
+		setIsLoading(false);
 	};
 
 	return (
