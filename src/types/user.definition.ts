@@ -11,14 +11,20 @@ export type IUser = {
 	username: string;
 	password: string | undefined;
 	token: string | undefined;
+	profileImageDownloadUrl: string;
 };
 
 export type UserSignUp = {
 	email: string;
 	password: string;
-	imageUri: string;
-	imageDownloadUrl: string;
+	profileImageUri: string;
+	profileImageDownloadUrl: string;
 	firstName: string;
 	lastName: string;
 	userName: string;
+};
+
+export type UserAuth = {
+	email: string;
+	password: string;
 };
