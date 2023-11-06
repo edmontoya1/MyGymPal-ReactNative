@@ -1,26 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import * as SecureStore from "expo-secure-store";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { db } from "../../firebase/firebase";
 import { IUser } from "../../types/user.definition";
 import { RootState } from "../store";
-
-export const fetchUserById = createAsyncThunk("user/fetchUserById", async (id: string) => {
-	try {
-		const userRef = collection(db, "users");
-		// should only recieve one doc
-		const userQuery = query(userRef, where("userUID", "==", id));
-		return await getDocs(userQuery).then(async (snapshot) => {
-			await SecureStore.setItemAsync("userDocId", snapshot.docs[0].id);
-			return snapshot.docs[0].data() as IUser;
-		});
-	} catch (error) {
-		console.log(error);
-		return null;
-	}
-});
-
 interface UserState {
 	token: string | null;
 	user: IUser | null;
@@ -57,19 +38,6 @@ export const userSlice = createSlice({
 				state.user.userUID = action.payload;
 			}
 		}
-	},
-	extraReducers(builder) {
-		builder
-			.addCase(fetchUserById.pending, (state, action) => {
-				state.status = "loading";
-			})
-			.addCase(fetchUserById.fulfilled, (state, action) => {
-				state.status = "succeeded";
-				state.user = action.payload;
-			})
-			.addCase(fetchUserById.rejected, (state, action) => {
-				state.status = "failed";
-			});
 	}
 });
 
